@@ -51,38 +51,43 @@ const double c_constant=(pow(hbarc,2)/(2.0*mass_unit));
 complejo const I(0., 1.);
 
 
-
-double Legendre(int n, double t) // return P_{n}(t)
+/*Returns the value of the Legendre polynomial P_n at t*/
+double Legendre(int n, double t)
 {
-  int k;
- double Pk_1,Pk_2,Pk; // P_{k-1}(x), P_{k-2}(x), P_k(x)
+	 int k;
+	 double Pk_1,Pk_2,Pk; // P_{k-1}(x), P_{k-2}(x), P_k(x)
 
- Pk_2 = 0.0;
- Pk_1 = 1.0;
- Pk = 1.0;
- 
- for(k=1;k<=n;k++)
- {
-  Pk = (2.0*k-1.0)/k*t*Pk_1 - (k-1.0)/k*Pk_2; 
-  Pk_2 = Pk_1;
-  Pk_1 = Pk;
- }
+	 Pk_2 = 0.0;
+	 Pk_1 = 1.0;
+	 Pk = 1.0;
+	 
+	 for(k=1;k<=n;k++)
+	 {
+	  Pk = (2.0*k-1.0)/k*t*Pk_1 - (k-1.0)/k*Pk_2; 
+	  Pk_2 = Pk_1;
+	  Pk_1 = Pk;
+	 }
 
- return Pk;
+	 return Pk;
 }
 
-struct my_f_params {int a; double b;}; 
-double f1 (double x, void * p) { //Deriviative part of the integral
+struct my_f_params {int a; double b;};
+ 
+double f1 (double x, void * p) 
+{ //Deriviative part of the integral
         struct my_f_params * params = (struct my_f_params *)p;
         int l = (params->a);
         double mu = (params->b);
         
         return exp(x*mu)*Legendre(l,x);
-       }
-double integration(int l, double mu){
+}
+       
+double integration(int l, double mu)
+{
         const   complex<double> i(0.0,1.0); 
         complex <double> c;
-        gsl_integration_workspace *work_ptr = gsl_integration_workspace_alloc (1000);
+        gsl_integration_workspace *work_ptr 
+			= gsl_integration_workspace_alloc (1000);
 
        double lower_limit = -1.0;	/* lower limit a */
        double upper_limit = 1.0;	/* upper limit b */
@@ -101,93 +106,82 @@ double integration(int l, double mu){
     
         alpha.a = l;
         alpha.b = mu;
-          gsl_integration_qags (&F1, lower_limit, upper_limit,
+        gsl_integration_qags (&F1, lower_limit, upper_limit,
 			abs_error, rel_error, 1000, work_ptr, &result,
 			&error);
         return result;
 }
 
-
+/*Returns the Coulomb potential for particles with proton numbers z1,z2
+ *  at distance R*/
 double columb_potential(int z1,int z2,double R,int n)
-   {
+{
     double Rcoul,Vcoul;
     Rcoul=1.25*pow((n+z1),1.0/3.0);
   
     if (R<Rcoul)
-      {
-      
-      Vcoul=((z1*z2*1.43997)/(2.0*Rcoul))*(3.0-pow(R,2.0)/(pow(Rcoul,2)));
-      }
+	  {
+		Vcoul=((z1*z2*1.43997)/(2.0*Rcoul))*(3.0-pow(R,2.0)/(pow(Rcoul,2)));
+	  }
     else
       {
-      Vcoul=(z1*z2*1.43997)/R;
-       }
+		Vcoul=(z1*z2*1.43997)/R;
+      }
     return Vcoul;
+}  
 
-    }  
- 
+/*Returns the potential due to the centrifugal term in the Hamiltonian*/
 double central_potential(int l,double R,double u)
 {
+	double constant;
 
+	constant=c_constant/u;
 
-double constant;
-
-constant=c_constant/u;
-
-return constant*((l*(l+1.0))/(R*R));
+	return constant*((l*(l+1.0))/(R*R));
 }
 
 
+/* Vd and Wd are real and imaginary surface potentials
+ * Vv and Wv are real and imaginary volume potentials
+ * Vsp and Wsp are real and imaginary spin orbit potentials */
 
 double Vd_potential(double Vd, double R,int n,int z,double rvd,double avd)
-
 {
-    double final,rvvd;
+    double rvvd;
     rvvd=rvd*pow(n+z,1.0/3.0);
     return (-4.0*Vd*exp((R-rvvd)/avd))/pow((1.0+exp((R-rvvd)/avd)),2.0) ;
- 
-
-
 }
 
-
-
-
-double V_sp_potential(double Vso,double Rso,double aso,double r,double j,int l,int n,int z)
-
+double V_sp_potential(double Vso,double Rso,double aso,
+	double r,double j,int l,int n,int z)
 {
-
    double Vspin,Rrso;
    Rrso=Rso*pow(n+z,1.0/3.0);
-   Vspin=(j*(j+1.0)-l*(l+1.0)-0.5*(0.5+1.0))*(-Vso/(aso*r))*(pow(hbarc/139.6,2))*(exp((r-Rrso)/aso))/(pow((1.0+exp((r-Rrso)/aso)),2.0));
+   Vspin=(j*(j+1.0)-l*(l+1.0)-0.5*(0.5+1.0))
+	*(-Vso/(aso*r))*(pow(hbarc/139.6,2))
+	*(exp((r-Rrso)/aso))/(pow((1.0+exp((r-Rrso)/aso)),2.0));
 
    return Vspin;
-
-
 }
 
-double W_sp_potential(double Wso,double Rwso,double awso,double r,double j,int l, int n, int z)
-
+double W_sp_potential(double Wso,double Rwso,double awso,
+	double r,double j,int l, int n, int z)
 {
- 
    double Wspin,Rwwso;
    Rwwso=Rwso*pow(n+z,1.0/3.0);
-   Wspin=(j*(j+1.0)-l*(l+1.0)-0.5*(0.5+1.0))*(-Wso/(awso*r))*(pow(hbarc/139.6,2))*(exp((r-Rwwso)/awso))/(pow((1.0+exp((r-Rwwso)/awso)),2.0));
+   Wspin=(j*(j+1.0)-l*(l+1.0)-0.5*(0.5+1.0))
+	*(-Wso/(awso*r))*(pow(hbarc/139.6,2))
+	*(exp((r-Rwwso)/awso))/(pow((1.0+exp((r-Rwwso)/awso)),2.0));
  
    return Wspin;
-
-
 }
 
 double  Wd_potential(double Wd,double R,int n,int z,double rwd,double awd)
-
 {
     double rwwd;
     rwwd=rwd*pow(n+z,1.0/3.0);
  
     return (-4.0*Wd*exp((R-rwwd)/awd))/pow((1.0+exp((R-rwwd)/awd)),2.0) ;
-
-
 }
 
 
@@ -200,34 +194,41 @@ double  f(double R,int n,int z,double r,double a)
 }
 
 
-double Wv_potential(double Wv,double R,int n,int z,double rwv,double awv)
-    
- {
+double Wv_potential(double Wv,double R,int n,int z,double rwv,double awv)  
+{
     return -Wv*f(R,n,z,rwv,awv);
-
- }
+}
 
 
 double  V_potential(double Vv,double R,int n,int z,double rv,double av)
 {
     return -Vv*f(R,n,z,rv,av);
-
 }
 
-std::complex<double> local_potential(double R,int l,double j,int n,int z1,int z2,double Vv,double rv,double av,double Wv,double rwv,double awv,double Vd,double rvd,double avd,double Wd,double rwd,double awd,double Vso,double Rso,double aso,double Wso,double Rwso,double awso)
-
-
+std::complex<double> local_potential(double R,int l,double j,int n,
+	int z1,int z2,double Vv,double rv,double av,double Wv,
+	double rwv,double awv,double Vd,double rvd,double avd,double Wd,
+	double rwd,double awd,double Vso,double Rso,double aso,double Wso,
+	double Rwso,double awso)
 {  
-
     const   complex<double> i(0.0,1.0);    
 
-    return V_potential(Vv,R,n,z1,rv,av)+1.0*i*Wv_potential(Wv,R,n,z1,rwv,awv)+Vd_potential(Vd,R,n,z1,rvd,avd)+1.0*i*Wd_potential(Wd,R,n,z1,rwd,awd)+V_sp_potential(Vso,Rso,aso,R,j,l,n,z1)+1.0*i*W_sp_potential(Wso,Rwso,awso,R,j,l,n,z1)+columb_potential(z1,z2,R,n);
-
+    return V_potential(Vv,R,n,z1,rv,av)
+		+1.0*i*Wv_potential(Wv,R,n,z1,rwv,awv)
+		+Vd_potential(Vd,R,n,z1,rvd,avd)
+		+1.0*i*Wd_potential(Wd,R,n,z1,rwd,awd)
+		+V_sp_potential(Vso,Rso,aso,R,j,l,n,z1)
+		+1.0*i*W_sp_potential(Wso,Rwso,awso,R,j,l,n,z1)
+		+columb_potential(z1,z2,R,n);
 }
 
-std::complex < double > non_local(double r_minus,double r_plus,int l,double jj,int n,int z1,int z2, double beta,double Vv1,double rv1,double av1,double Wv1,double rwv1,double awv1,double Vd1,double rvd1,double avd1,double Wd1,double rwd1,double awd1,double Vso1,double Rso1,double aso1,double Wso1,double Rwso1,double awso1)
-    {
-    double r_average,zz,c_m;
+std::complex<double> non_local(double r_minus,double r_plus,int l,
+	double jj,int n,int z1,int z2, double beta,double Vv1,double rv1,
+	double av1,double Wv1,double rwv1,double awv1,double Vd1,double rvd1,
+	double avd1,double Wd1,double rwd1,double awd1,double Vso1,
+	double Rso1,double aso1,double Wso1,double Rwso1,double awso1)
+{
+    double r_average,zz;
   
     r_average=(r_plus+r_minus)/2.0;
      
@@ -237,9 +238,12 @@ std::complex < double > non_local(double r_minus,double r_plus,int l,double jj,i
     c_n=2.0*pow(1.0*i,l)*zz;
     c=1.0/(2.0*pow(1.0*i,l));
     complex <double> V_potential_average;
-    V_potential_average=local_potential(r_average,l,jj,n,z1,z2,Vv1,rv1,av1,Wv1,rwv1,awv1,Vd1,rvd1,avd1,Wd1,rwd1,awd1,Vso1,Rso1,aso1,Wso1,Rwso1,awso1);
+    V_potential_average=local_potential(r_average,l,jj,n,z1,z2,Vv1,
+		rv1,av1,Wv1,rwv1,awv1,Vd1,rvd1,avd1,Wd1,rwd1,awd1,Vso1,Rso1,
+		aso1,Wso1,Rwso1,awso1);
     if ( abs(zz)<=700)
-      {  complex <double> part_b,part_a;
+    {  
+		 complex <double> part_b,part_a;
      
          part_a=c*integration(l,zz);
 
@@ -251,24 +255,19 @@ std::complex < double > non_local(double r_minus,double r_plus,int l,double jj,i
          
          exponent=(pow(r_plus,2.0)+pow(r_minus,2.0))/(beta*beta);
          total=1.0/(beta*pow(PI,1.0/2.0))*(exp(-exponent))*kl ;
-       }
+    }
     else
-       {
-        
+    {
          total=1.0/(beta*pow(PI,1.0/2.0))*exp(-pow((r_plus-r_minus)/beta,2.0));
-
-        }
+    }
    
     return V_potential_average*total;
    // return 0;
-   }
-
-
+}
 
 
 class MyClass 
 {
-
       public:
       double radius;   
       double real;  
@@ -285,9 +284,10 @@ class MyClass
        
      void display()
      {
-     cout << radius<<","<<real<<","<<imag<<" ";}
+		cout << radius<<","<<real<<","<<imag<<" ";
+     }
  
-     };
+};
 
 struct Final_return
 {
@@ -296,7 +296,8 @@ struct Final_return
 };
 
 
-extern void gauleg(const double x1, const double x2, std::vector<double> &x, std::vector<double> &w)
+extern void gauleg(const double x1, const double x2, 
+	std::vector<double> &x, std::vector<double> &w)
 {
 	const double EPS=1.0e-14;
 	int m,j,i;
@@ -326,17 +327,19 @@ extern void gauleg(const double x1, const double x2, std::vector<double> &x, std
 		w[n-1-i]=w[i];
 	}
 }
-struct distorted_wave {
-int id;
-int puntos;
-double radio;
-int l;
-double j;
-int nodos;
-double r[MAX_PTS];
-complejo wf[MAX_PTS];
-double energia;
-float spin;
+
+struct distorted_wave 
+{
+	int id;
+	int puntos;
+	double radio;
+	int l;
+	double j;
+	int nodos;
+	double r[MAX_PTS];
+	complejo wf[MAX_PTS];
+	double energia;
+	float spin;
 };
 
 struct lagrange
@@ -380,47 +383,48 @@ void LagrangeBasis(lagrange* lag)
   
 
   for(m=0;m<lag->r.size();m++)
-    {
+  {
       for(i=1;i<=lag->N;i++)
-	{ 
-	  if (lag->r[m]==lag->a*lag->x[i-1])
+	  { 
+	    if (lag->r[m]==lag->a*lag->x[i-1])
 	    {
-	      lag->basis(m,i-1)= pow(-1.,lag->N+i)*sqrt(lag->a*lag->x[i-1]*(1.-lag->x[i-1]));
+	      lag->basis(m,i-1) = pow(-1.,lag->N+i)
+			*sqrt(lag->a*lag->x[i-1]*(1.-lag->x[i-1]));
 	    }
-	  else 
+	    else 
 	    {
-	      lag->basis(m,i-1)= pow(-1.0,lag->N+i)*lag->r[m]/(lag->a*lag->x[i-1])*sqrt(lag->a*lag->x[i-1]*(1.-lag->x[i-1]))
-		*gsl_sf_legendre_Pl(lag->N,2.*lag->r[m]/lag->a-1.)/(lag->r[m]-lag->a*lag->x[i-1]);
+	      lag->basis(m,i-1)= pow(-1.0,lag->N+i)
+			*lag->r[m]/(lag->a*lag->x[i-1])
+			*sqrt(lag->a*lag->x[i-1]*(1.-lag->x[i-1]))
+			*gsl_sf_legendre_Pl(lag->N,2.*lag->r[m]/lag->a-1.)
+			/(lag->r[m]-lag->a*lag->x[i-1]);
 	    }
-	}
- 
-    }
+	  }
+  }
 
  for(int mm=0;mm<lag->rr.size();mm++)
-    { //cout<<"rr.size"<<lag->rr.size()<<endl;
-      //cout<<"N"<<lag->N<<endl;
-      for(int ii=1;ii<=lag->N;ii++)
-        
-	{  // cout<<" "<<mm<<" "<<ii-1<<" ";
-          //  lag->basis_r(mm,ii-1)=0;
+ { 
+	//cout<<"rr.size"<<lag->rr.size()<<endl;
+    //cout<<"N"<<lag->N<<endl;
+    for(int ii=1;ii<=lag->N;ii++)   
+	{  
+	  // cout<<" "<<mm<<" "<<ii-1<<" ";
+      //  lag->basis_r(mm,ii-1)=0;
 	  if (lag->rr[mm]==lag->a*lag->x[ii-1])
 	    {
-	      lag->basis_r(mm,ii-1)= pow(-1.,lag->N+ii)*sqrt(lag->a*lag->x[ii-1]*(1.-lag->x[ii-1]));
+	      lag->basis_r(mm,ii-1)= pow(-1.,lag->N+ii)
+			*sqrt(lag->a*lag->x[ii-1]*(1.-lag->x[ii-1]));
 	    }
 	  else 
 	    {
-	      lag->basis_r(mm,ii-1)= pow(-1.0,lag->N+ii)*lag->rr[mm]/(lag->a*lag->x[ii-1])*sqrt(lag->a*lag->x[ii-1]*(1.-lag->x[ii-1]))
-		*gsl_sf_legendre_Pl(lag->N,2.*lag->rr[mm]/lag->a-1.)/(lag->rr[mm]-lag->a*lag->x[ii-1]);
-	    }
-           
+	      lag->basis_r(mm,ii-1)= pow(-1.0,lag->N+ii)
+			*lag->rr[mm]/(lag->a*lag->x[ii-1])
+			*sqrt(lag->a*lag->x[ii-1]*(1.-lag->x[ii-1]))
+			*gsl_sf_legendre_Pl(lag->N,2.*lag->rr[mm]/lag->a-1.)
+			/(lag->rr[mm]-lag->a*lag->x[ii-1]);
+	    }      
 	}
-  
-    }
-
-
-
-
-
+ }
 }
 
 complejo interpola2D_cmpxVec(complejo** funcion,vector_dbl r1,vector_dbl r2,
@@ -446,17 +450,20 @@ complejo interpola2D_cmpxVec(complejo** funcion,vector_dbl r1,vector_dbl r2,
 	f12=funcion[indice1][indice2+1];
 	f21=funcion[indice1+1][indice2];
 	f22=funcion[indice1+1][indice2+1];
-	return (f11*(r1[indice1+1]-posicion1)*(r2[indice2+1]-posicion2)+f21*(posicion1-r1[indice1])*(r2[indice2+1]-posicion2)
-			+f12*(r1[indice1+1]-posicion1)*(posicion2-r2[indice2])+f22*(posicion1-r1[indice1])
-		*(posicion2-r2[indice2]))/(delta_r1*delta_r2);
+	return (f11*(r1[indice1+1]-posicion1)*(r2[indice2+1]-posicion2)
+			+f21*(posicion1-r1[indice1])*(r2[indice2+1]-posicion2)
+			+f12*(r1[indice1+1]-posicion1)*(posicion2-r2[indice2])
+			+f22*(posicion1-r1[indice1])*(posicion2-r2[indice2]))
+			/(delta_r1*delta_r2);
 }
 
 
-complejo NLwavefunction(distorted_wave* dw,complejo** v,vector_dbl r1,vector_dbl r2, double q1q2, double masa,double radio_max,
-			int puntos,double radio_match,ofstream* fp,lagrange* lag)
+complejo NLwavefunction(distorted_wave* dw,complejo** v,vector_dbl r1,
+	vector_dbl r2, double q1q2, double masa,double radio_max,
+	int puntos,double radio_match,ofstream* fp,lagrange* lag)
 {       
-  double delta_r,hbarx,central,part3,part4,ri,rj,q,etac,
-    exp_F,exp_G,delta_a;
+  double delta_r,hbarx,part3,part4,ri,rj,q,etac,exp_F,exp_G;
+  //removed "central" and "delta_a" (unused)
   complejo pot,Rmatrix,Hp,Hm,Hmp,Hpp,S,phase_shift,factor;
   int i,j;
  
@@ -484,16 +491,17 @@ complejo NLwavefunction(distorted_wave* dw,complejo** v,vector_dbl r1,vector_dbl
    // Kinetic energy, Bloch term and energy eigenvalue
   for(i=0;i<lag->N;i++)
     {
-      TLmatrix(i,i)=hbarx*((4.*lag->N*lag->N+4.*lag->N+3.0)*lag->x[i]*(1.-lag->x[i])-6.*lag->x[i]+1.)/
-	(3.*lag->a*lag->a*(lag->x[i]*lag->x[i])*((1.-lag->x[i])*(1.-lag->x[i])))-dw->energia;
+      TLmatrix(i,i)=hbarx
+		*((4.*lag->N*lag->N+4.*lag->N+3.0)*lag->x[i]*(1.-lag->x[i])-6.*lag->x[i]+1.)
+		/(3.*lag->a*lag->a*(lag->x[i]*lag->x[i])*((1.-lag->x[i])*(1.-lag->x[i])))-dw->energia;
       for(j=i+1;j<lag->N;j++)
-	{
-	  part3=pow(-1.,i+j)/(lag->a*lag->a*sqrt(lag->x[i]*lag->x[j]*(1.-lag->x[i])*(1.-lag->x[j])));
-	  part4=(lag->N*lag->N*1.+lag->N*1.0+1.0+(lag->x[i]+lag->x[j]-2.*lag->x[i]*lag->x[j])/
-		 ((lag->x[i]-lag->x[j])*(lag->x[i]-lag->x[j]))-1./(1.-lag->x[i])-1./(1.-lag->x[j]));
-	  TLmatrix(i,j)=hbarx*part3*part4;
-	  TLmatrix(j,i)=TLmatrix(i,j);
-	}
+	  {
+		  part3=pow(-1.,i+j)/(lag->a*lag->a*sqrt(lag->x[i]*lag->x[j]*(1.-lag->x[i])*(1.-lag->x[j])));
+		  part4=(lag->N*lag->N*1.+lag->N*1.0+1.0+(lag->x[i]+lag->x[j]-2.*lag->x[i]*lag->x[j])/
+			 ((lag->x[i]-lag->x[j])*(lag->x[i]-lag->x[j]))-1./(1.-lag->x[i])-1./(1.-lag->x[j]));
+		  TLmatrix(i,j)=hbarx*part3*part4;
+		  TLmatrix(j,i)=TLmatrix(i,j);
+	  }
     }
   // Potential (multiplied by ri*rj), including central potential and energy
   for(i=0;i<lag->N;i++)
@@ -501,11 +509,11 @@ complejo NLwavefunction(distorted_wave* dw,complejo** v,vector_dbl r1,vector_dbl
       ri=lag->a*lag->x[i];
       Vmatrix(i,i)=hbarx*dw->l*(dw->l+1.)/(ri*ri);  // central potential and energy
       for(j=0;j<lag->N;j++)
-	{          
-	  rj=lag->a*lag->x[j];
-	  pot=interpola2D_cmpxVec(v,r1,r2,ri,rj);
-	  Vmatrix(i,j)+=ri*rj*lag->a*sqrt(lag->w[i]*lag->w[j]/4.)*pot;
-	}
+	  {          
+		  rj=lag->a*lag->x[j];
+		  pot=interpola2D_cmpxVec(v,r1,r2,ri,rj);
+		  Vmatrix(i,j)+=ri*rj*lag->a*sqrt(lag->w[i]*lag->w[j]/4.)*pot;
+	  }
     }
   Gmatrix=inv(TLmatrix+Vmatrix);
  
@@ -526,9 +534,9 @@ complejo NLwavefunction(distorted_wave* dw,complejo** v,vector_dbl r1,vector_dbl
       ri=(i+1.)*delta_r;
       dw->r[i]=ri;
       for(j=0;j<lag->N;j++)
-  	{
-  	  dw->wf[i]+=c(j)*lag->basis(i,j);
-  	}
+		{
+		  dw->wf[i]+=c(j)*lag->basis(i,j);
+		}
     }
    for(i=lag->basis.n_rows;i<dw->puntos;i++)
     {
@@ -548,14 +556,21 @@ complejo NLwavefunction(distorted_wave* dw,complejo** v,vector_dbl r1,vector_dbl
   //int stop_s=clock();
   //cout<<"Time in NLwavefunction: "<<(stop_s-start_s)/double(CLOCKS_PER_SEC)<<" s"<<endl;
   return phase_shift;
-
 }
 
 complejo NLwavefunction_p(distorted_wave* dw, double q1q2, double masa,double radio_max,
-			int puntos,double radio_match,ofstream* fp,lagrange* lag,double jj, int n,int z1,int z2,double Vv,double rv,double av,double Wv,double rwv,double awv,double Vd,double rvd,double avd,double Wd,double rwd,double awd,double Vso,double Rso,double aso,double Wso,double Rwso,double awso,double beta,double Vv1,double rv1,double av1,double Wv1,double rwv1,double awv1,double Vd1,double rvd1,double avd1,double Wd1,double rwd1,double awd1,double Vso1,double Rso1,double aso1,double Wso1,double Rwso1,double awso1)
+			int puntos,double radio_match,ofstream* fp,lagrange* lag,
+			double jj, int n,int z1,int z2,double Vv,double rv,double av,
+			double Wv,double rwv,double awv,double Vd,double rvd,double avd,
+			double Wd,double rwd,double awd,double Vso,double Rso,
+			double aso,double Wso,double Rwso,double awso,double beta,
+			double Vv1,double rv1,double av1,double Wv1,double rwv1,
+			double awv1,double Vd1,double rvd1,double avd1,double Wd1,
+			double rwd1,double awd1,double Vso1,double Rso1,double aso1,
+			double Wso1,double Rwso1,double awso1)
 {       
-  double delta_r,hbarx,central,part3,part4,ri,rj,q,etac,
-    exp_F,exp_G,delta_a;
+  double delta_r,hbarx,part3,part4,ri,rj,q,etac,exp_F,exp_G; 
+  //removed "central" and "delta_a" (unused)
   std::complex<double>local,nonlocal;
   complejo pot,Rmatrix,Hp,Hm,Hmp,Hpp,S,phase_shift,factor;
   int i,j;
@@ -618,7 +633,9 @@ complejo NLwavefunction_p(distorted_wave* dw, double q1q2, double masa,double ra
       for(j=0;j<lag->N;j++)
 	{          
 	  rj=lag->a*lag->x[j];
-          nonlocal=non_local(ri,rj,dw->l,jj,n,z1,z2,beta,Vv1,rv1,av1,Wv1,rwv1,awv1,Vd1,rvd1,avd1,Wd1,rwd1,awd1,Vso1,Rso1,aso1,Wso1,Rwso1,awso1);
+          nonlocal=non_local(ri,rj,dw->l,jj,n,z1,z2,beta,Vv1,rv1,av1,
+			Wv1,rwv1,awv1,Vd1,rvd1,avd1,Wd1,rwd1,awd1,
+			Vso1,Rso1,aso1,Wso1,Rwso1,awso1);
 	  //pot=interpola2D_cmpxVec(v,r1,r2,ri,rj);
            if (i==j)
           {      
@@ -664,10 +681,10 @@ complejo NLwavefunction_p(distorted_wave* dw, double q1q2, double masa,double ra
        }
  
 */
-        for(j=0;j<lag->N;j++)
-       {
+  for(j=0;j<lag->N;j++)
+  {
        cout<<" "<<basis_a[j]<<"  ";
-        }
+  }
 
 
   Rmatrix=hbarx*dot(basis_a.t(),Gmatrix*basis_a)/lag->a;
@@ -710,160 +727,165 @@ complejo NLwavefunction_p(distorted_wave* dw, double q1q2, double masa,double ra
       *fp<<dw->r[i]<<"   "<<real(dw->wf[i])<<"  "<<imag(dw->wf[i])<<endl;
     }
  */
-
 }
 
 int main()
- {   int start_s=clock();
+{   
+	int start_s=clock();
     ofstream outtime; // outdata is like cin
     outtime.open("wave_function.txt"); // opens the file
 
-      
-
       Final_return b;
       Final_return b2;
-      double mu;
-
+      //double mu;
      
    boost::property_tree::ptree pt;
    boost::property_tree::ini_parser::read_ini("config.txt", pt);
-int NN;double m1;double m2;double E;double a_size;int l;double jj; int n;int z1;int z2;int B; double Nr; double R_max;double Vv;double rv;double av;double Wv;double rwv;double awv;double Vd; double rvd;double avd;double Wd;double rwd;double awd;double Vso;double Rso;double aso;double Wso;double Rwso;double awso;double beta;double Vv1;double rv1;double av1;double Wv1;double rwv1;double awv1;double Vd1;double rvd1;double avd1;double Wd1;double rwd1;double awd1;double Vso1;double Rso1;double aso1;double Wso1;double Rwso1;double awso1;
+ int NN;double m1;double m2;double E;double a_size;int l;double jj;
+ int n;int z1;int z2;int B; double Nr; double R_max;double Vv;
+ double rv;double av;double Wv;double rwv;double awv;double Vd;
+ double rvd;double avd;double Wd;double rwd;double awd;double Vso;
+ double Rso;double aso;double Wso;double Rwso;double awso;double beta;
+ double Vv1;double rv1;double av1;double Wv1;double rwv1;double awv1;
+ double Vd1;double rvd1;double avd1;double Wd1;double rwd1;double awd1;
+ double Vso1;double Rso1;double aso1;double Wso1;double Rwso1;double awso1;
    
+	NN=pt.get<int>("Numerical.NN") ;
 
-NN=pt.get<int>("Numerical.NN") ;
+	m1=pt.get<double>("Numerical.m1") ;
+	m2=pt.get<double>("Numerical.m2") ;
 
-m1=pt.get<double>("Numerical.m1") ;
-m2=pt.get<double>("Numerical.m2") ;
-
-E=pt.get<double>("Numerical.E") ;
-a_size=pt.get<double>("Numerical.a_size") ;
-l=pt.get<int>("Numerical.l") ;
-jj=pt.get<double>("Numerical.jj");
-n=pt.get<int>("Numerical.n");
-z1=pt.get<int>("Numerical.z1");
-z2=pt.get<int>("Numerical.z2");
-B=pt.get<int>("Numerical.B") ;
-Nr=pt.get<double>("Numerical.Nr");
-R_max=pt.get<double>("Numerical.R_max");
+	E=pt.get<double>("Numerical.E") ;
+	a_size=pt.get<double>("Numerical.a_size") ;
+	l=pt.get<int>("Numerical.l") ;
+	jj=pt.get<double>("Numerical.jj");
+	n=pt.get<int>("Numerical.n");
+	z1=pt.get<int>("Numerical.z1");
+	z2=pt.get<int>("Numerical.z2");
+	B=pt.get<int>("Numerical.B") ;
+	Nr=pt.get<double>("Numerical.Nr");
+	R_max=pt.get<double>("Numerical.R_max");
 
 
-Vv=pt.get<double>("local.Vv") ;
-rv=pt.get<double>("local.rv") ;
-av=pt.get<double>("local.av") ;
-Wv=pt.get<double>("local.Wv") ;
-rwv=pt.get<double>("local.rwv") ;
-awv=pt.get<double>("local.awv");
+	Vv=pt.get<double>("local.Vv") ;
+	rv=pt.get<double>("local.rv") ;
+	av=pt.get<double>("local.av") ;
+	Wv=pt.get<double>("local.Wv") ;
+	rwv=pt.get<double>("local.rwv") ;
+	awv=pt.get<double>("local.awv");
 
-Vd=pt.get<double>("local.Vd");
-rvd=pt.get<double>("local.rvd");
-avd=pt.get<double>("local.avd");
+	Vd=pt.get<double>("local.Vd");
+	rvd=pt.get<double>("local.rvd");
+	avd=pt.get<double>("local.avd");
 
-Wd=pt.get<double>("local.Wd") ;
-rwd=pt.get<double>("local.rwd");
-awd=pt.get<double>("local.awd");
+	Wd=pt.get<double>("local.Wd") ;
+	rwd=pt.get<double>("local.rwd");
+	awd=pt.get<double>("local.awd");
 
-Vso=pt.get<double>("local.Vso");
-Rso=pt.get<double>("local.Rso");
-aso=pt.get<double>("local.aso");
-Wso=pt.get<double>("local.Wso") ;
-Rwso=pt.get<double>("local.Rwso");
-awso=pt.get<double>("local.awso");
+	Vso=pt.get<double>("local.Vso");
+	Rso=pt.get<double>("local.Rso");
+	aso=pt.get<double>("local.aso");
+	Wso=pt.get<double>("local.Wso") ;
+	Rwso=pt.get<double>("local.Rwso");
+	awso=pt.get<double>("local.awso");
 
-Vv1=pt.get<double>("Non_local.Vv1") ;
-rv1=pt.get<double>("Non_local.rv1") ;
-av1=pt.get<double>("Non_local.av1") ;
-Wv1=pt.get<double>("Non_local.Wv1") ;
-rwv1=pt.get<double>("Non_local.rwv1") ;
-awv1=pt.get<double>("Non_local.awv1");
-Vd1=pt.get<double>("Non_local.Vd1");
-rvd1=pt.get<double>("Non_local.rvd1");
-avd1=pt.get<double>("Non_local.avd1");
-Wd1=pt.get<double>("Non_local.Wd1") ;
-rwd1=pt.get<double>("Non_local.rwd1");
-awd1=pt.get<double>("Non_local.awd1");
-Vso1=pt.get<double>("Non_local.Vso1");
-Rso1=pt.get<double>("Non_local.Rso1");
-aso1=pt.get<double>("Non_local.aso1");
-Wso1=pt.get<double>("Non_local.Wso1") ;
-Rwso1=pt.get<double>("Non_local.Rwso1");
-awso1=pt.get<double>("Non_local.awso1");
+	Vv1=pt.get<double>("Non_local.Vv1") ;
+	rv1=pt.get<double>("Non_local.rv1") ;
+	av1=pt.get<double>("Non_local.av1") ;
+	Wv1=pt.get<double>("Non_local.Wv1") ;
+	rwv1=pt.get<double>("Non_local.rwv1") ;
+	awv1=pt.get<double>("Non_local.awv1");
+	Vd1=pt.get<double>("Non_local.Vd1");
+	rvd1=pt.get<double>("Non_local.rvd1");
+	avd1=pt.get<double>("Non_local.avd1");
+	Wd1=pt.get<double>("Non_local.Wd1") ;
+	rwd1=pt.get<double>("Non_local.rwd1");
+	awd1=pt.get<double>("Non_local.awd1");
+	Vso1=pt.get<double>("Non_local.Vso1");
+	Rso1=pt.get<double>("Non_local.Rso1");
+	aso1=pt.get<double>("Non_local.aso1");
+	Wso1=pt.get<double>("Non_local.Wso1") ;
+	Rwso1=pt.get<double>("Non_local.Rwso1");
+	awso1=pt.get<double>("Non_local.awso1");
 
-beta=pt.get<double>("Non_local.beta");
-distorted_wave wave;
-lagrange* lag=new lagrange[1]; 
+	beta=pt.get<double>("Non_local.beta");
+	
+	distorted_wave wave;
+	lagrange* lag=new lagrange[1]; 
 
-lag->N=NN;
-lag->a=a_size;
-double q1q2, masa, radio_max, radio_match;
-int puntos;
-q1q2=z1*z2;
-masa=m2/(m1+m2);
-cout<<"masa"<<masa<<endl;
-radio_max=R_max;
-radio_match=a_size;
-puntos=R_max/Nr;
+	lag->N=NN;
+	lag->a=a_size;
+	double q1q2, masa, radio_max, radio_match;
+	int puntos;
+	q1q2=z1*z2;
+	masa=m2/(m1+m2);
+	cout<<"masa"<<masa<<endl;
+	radio_max=R_max;
+	radio_match=a_size;
+	puntos=R_max/Nr;
 
-double step,rn,spin;
-step=double(lag->a/lag->N);
-cout<<"N"<<" "<<lag->N<<" ";
-rn=step;
-while(rn<=lag->a)
-    {
-      lag->r.push_back(rn);
-      rn+=step;
- 
-   }
+	double step,rn,spin;
+	step=double(lag->a/lag->N);
+	cout<<"N"<<" "<<lag->N<<" ";
+	rn=step;
+	
+	while(rn<=lag->a)
+	{
+		  lag->r.push_back(rn);
+		  rn+=step;
+	}
 
-/*
-double r=0;
-for(int n=1; n<=lag->N; n++)
-  { 
-    r=n*lag->a/lag->N;
-    lag->r.push_back(r);
-    
-   }
-*/
-cout<<"Size: "<<lag->r.size()<<" Last: "<<lag->r[lag->r.size()-1]<<endl;
-double r_0=0;
-for(int n1=1; n1<=lag->a/Nr; n1++)
-  { 
-    r_0=n1*Nr;
-    lag->rr.push_back(r_0);
-    
-   }
-cout<<"Size: "<<lag->rr.size()<<" Last: "<<lag->rr[lag->rr.size()-1]<<endl;
+	/*
+	double r=0;
+	for(int n=1; n<=lag->N; n++)
+	  { 
+		r=n*lag->a/lag->N;
+		lag->r.push_back(r);
+		
+	   }
+	*/
+	cout<<"Size: "<<lag->r.size()<<" Last: "<<lag->r[lag->r.size()-1]<<endl;
+	double r_0=0;
+	for(int n1=1; n1<=lag->a/Nr; n1++)
+	  { 
+		r_0=n1*Nr;
+		lag->rr.push_back(r_0);
+		
+	   }
+	cout<<"Size: "<<lag->rr.size()<<" Last: "<<lag->rr[lag->rr.size()-1]<<endl;
 
-/*for(double r_0=0.0; r_0<lag->a; r_0=r_0+Nr)
-  { 
-  
-    lag->rr.push_back(r_0);
-    
-   }
-cout<<"Size: "<<lag->rr.size()<<" Last: "<<lag->rr[lag->rr.size()-1]<<endl;
-*/
-for(int n1=0;n1<lag->N;n1++)
-{
-  lag->x.push_back(0.);
-  lag->w.push_back(0.);
+	/*for(double r_0=0.0; r_0<lag->a; r_0=r_0+Nr)
+	  { 
+	  
+		lag->rr.push_back(r_0);
+		
+	   }
+	cout<<"Size: "<<lag->rr.size()<<" Last: "<<lag->rr[lag->rr.size()-1]<<endl;
+	*/
+	for(int n1=0;n1<lag->N;n1++)
+	{
+	  lag->x.push_back(0.);
+	  lag->w.push_back(0.);
+	}
+	lag->basis.zeros(lag->r.size(),lag->N);  
+	lag->basis_r.zeros(lag->rr.size(),lag->N); 
+	LagrangeBasis(lag);
+	distorted_wave* chi=new distorted_wave;
+
+	spin=0.5;
+	ofstream fp("neutron_distorted_wave.txt");
+	chi->energia=E*masa;
+	chi->l=l;
+	chi->spin=spin;
+	chi->j=jj;
+	chi->puntos=puntos;
+	NLwavefunction_p(chi,q1q2, masa,radio_max,puntos,radio_match,
+		&fp,lag,jj,n,z1,z2,Vv,rv,av,Wv,rwv,awv,Vd,rvd,avd,Wd,rwd,awd,
+		Vso,Rso,aso,Wso,Rwso,awso,beta,Vv1,rv1, av1,Wv1,rwv1,awv1,Vd1,
+		rvd1,avd1, Wd1,rwd1,awd1,Vso1,Rso1,aso1,Wso1,Rwso1,awso1);
+	 //non_local_wavefunction_matrixx_in(NN,mu,E,a_size,l,jj,n,z1,z2,B,Vv,rv,av,Wv,rwv,awv,Vd,rvd,avd,Wd,rwd,awd,Vso,Rso,aso,Wso,Rwso,awso,beta,Vv1,rv1, av1,Wv1,rwv1,awv1,Vd1,rvd1, avd1, Wd1,rwd1,awd1,Vso1,Rso1,aso1,Wso1,Rwso1,awso1,Nr,R_max,b);
+	 int stop_s=clock();
+	  cout<<"Time in NLwavefunction: "<<(stop_s-start_s)/double(CLOCKS_PER_SEC)<<" s"<<endl;
+	 
+	return 0;
 }
-lag->basis.zeros(lag->r.size(),lag->N);  
-lag->basis_r.zeros(lag->rr.size(),lag->N); 
-LagrangeBasis(lag);
-distorted_wave* chi=new distorted_wave;
-
-spin=0.5;
-ofstream fp("neutron_distorted_wave.txt");
-chi->energia=E*masa;
-chi->l=l;
-chi->spin=spin;
-chi->j=jj;
-chi->puntos=puntos;
-NLwavefunction_p(chi,q1q2, masa,radio_max,puntos,radio_match,&fp,lag,jj,n,z1,z2,Vv,rv,av,Wv,rwv,awv,Vd,rvd,avd,Wd,rwd,awd,Vso,Rso,aso,Wso,Rwso,awso,beta,Vv1,rv1, av1,Wv1,rwv1,awv1,Vd1,rvd1, avd1, Wd1,rwd1,awd1,Vso1,Rso1,aso1,Wso1,Rwso1,awso1);
- //non_local_wavefunction_matrixx_in(NN,mu,E,a_size,l,jj,n,z1,z2,B,Vv,rv,av,Wv,rwv,awv,Vd,rvd,avd,Wd,rwd,awd,Vso,Rso,aso,Wso,Rwso,awso,beta,Vv1,rv1, av1,Wv1,rwv1,awv1,Vd1,rvd1, avd1, Wd1,rwd1,awd1,Vso1,Rso1,aso1,Wso1,Rwso1,awso1,Nr,R_max,b);
- int stop_s=clock();
-  cout<<"Time in NLwavefunction: "<<(stop_s-start_s)/double(CLOCKS_PER_SEC)<<" s"<<endl;
- 
- return 0;
-
-
-  }
