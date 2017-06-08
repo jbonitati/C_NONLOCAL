@@ -1,0 +1,60 @@
+
+[Numerical]
+NN = 17
+m1=1
+m2=40
+E = 45
+a_size = 10.0
+l = 0
+jj = 0.5
+n = 20
+z1 =20
+z2 = 0
+B = 0 
+Nr = 0.01
+R_max = 19
+
+[local]
+Vv = 50.0
+rv = 1.25
+av = 0.25
+Wv = 0
+rwv = 1.25
+awv = 0.25
+Vd = 0  
+rvd = 1.25
+avd = 0.25
+Wd = 0  
+rwd = 1.25
+awd = 0.25
+Vso = 0
+Rso = 1.25
+aso = 0.25
+Wso = 0
+Rwso = 1.25
+awso = 0.25
+
+
+
+[Non_local]
+beta = 0.85
+Vv1 = 0
+rv1 = 1.25
+av1 = 0.25
+Wv1 = 0
+rwv1 = 1.22
+awv1 = 0.47
+Vd1 = 0
+rvd1 = 1.25
+avd1 = 0.25
+Wd1 = 0
+rwd1 = 1.25
+awd1 = 0.25
+Vso1 = 0
+Rso1 = 1.25
+aso1 = 0.25
+Wso1 = 0
+Rwso1 = 1.25
+awso1 = 0.25
+
+

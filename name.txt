@@ -1,0 +1,35 @@
+Bob Dylan 10 9
+
+John Lennon 8 7
+
+David Bowie 6 5
+
+Step_Size  0.01  
+  
+Maximum_Radius   50.000  
+Elab   25.000  
+L   1  
+j    0.5
+Mass_number_projectile Mass_number_target  1     40  
+Charge_projectile         target          0     20                
+Local_Real_Volume_Depth Radius Diffuseness  0.000    1.250  0.250   
+Local_Imag_Volume_Depth  Radius Diffuseness  70.000    1.250  0.250  
+Local_Real_Surface_Depth Radius Diffuseness   0.000    1.000  0.200  
+Local_Imag_Surface_Depth  Radius Diffuseness  0.000    1.000  0.200   
+Local_Real_Spin_Orbit_Depth Radius Diffuseness 0.000    1.250  0.250   
+Local_Imag_Spin_Orbit_Depth Radius Diffuseness 0.000    1.2500  0.250  
+Local Coulomb Radius 1.250                   
+  Local Part of NL: Real Volume Depth, Radius, Diffuseness 50.000    1.250  0.250 
+Local Part of NL: Imag Volume Depth, Radius, Diffuseness 70.000    1.250  0.250   
+ Local Part of NL: Real Surface Depth, Radius, Diffuseness 0.000    0.000  0.000  
+Local Part of NL: Imag Surface Depth, Radius, Diffuseness 0.000    0.000  0.000   
+Local Part of NL: Real Spin-Orbit Depth, Radius, Diffuseness 0.000    1.250  0.250   
+ Local Part of NL: Imag Spin-Orbit Depth, Radius, Diffuseness 0.000    1.250  0.250  
+Local Part of NL: Coulomb Radius  1.250                   
+Nonlocal Real Volume Depth, Radius, Diffuseness 50.00    1.250   0.250   
+Nonlocal Imag Volume Depth, Radius, Diffuseness 0.000    1.220  0.470   
+ Nonlocal Real Surface Depth, Radius, Diffuseness  0.000    0.000  0.000  
+  Nonlocal Imag Surface Depth, Radius, Diffuseness  0.00    1.220  0.350  
+ Nonlocal Real Spin-Orbit Depth, Radius, Diffuseness  0.000    1.250  0.25  
+ Nonlocal Imag Spin-Orbit Depth, Radius, Diffuseness  0.000    1.250  0.250  
+Beta: Range of Nonlocality  0.850                   
