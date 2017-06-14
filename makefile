@@ -1,10 +1,16 @@
-#
-CC = gcc
+appname := run
 
-#edit LAPACK_PATH if necessary
-LAPACK_PATH = /usr/lib64/atlas
+CXX := g++
+LDLIBS := -lgsl -lgslcblas -larmadillo
+CXXFLAGS := -Wall -g
 
-a,out: main.c
-$(CC)  main.c  -L$(LAPACK_PATH) -llapack -lblas  -lgfortran -lm
+srcfiles := $(shell find . -name "*.cpp")
+objects  := $(patsubst %.cpp, %.o, $(srcfiles))
 
+all: $(appname)
 
+$(appname): $(objects)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $(appname) $(objects) $(LDLIBS)
+
+clean:
+	$(RM) $(objects)
