@@ -732,8 +732,8 @@ complejo NLwavefunction_p(distorted_wave* dw, double q1q2, double masa,double ra
 int main()
 {   
 	int start_s=clock();
-    ofstream outtime; // outdata is like cin
-    outtime.open("wave_function.txt"); // opens the file
+    //ofstream outtime; // outdata is like cin
+    //outtime.open("wave_function.txt"); // opens the file
 
       Final_return b;
       Final_return b2;
@@ -818,7 +818,7 @@ int main()
 	double q1q2, masa, radio_max, radio_match;
 	int puntos;
 	q1q2=z1*z2;
-	masa=m2/(m1+m2);
+	masa= m1*m2/(m1+m2);
 	cout<<"masa"<<masa<<endl;
 	radio_max=R_max;
 	radio_match=a_size;
