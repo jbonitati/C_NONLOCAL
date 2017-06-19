@@ -2,7 +2,7 @@ appname := run
 
 CXX := g++
 LDLIBS := -lgsl -lgslcblas -larmadillo
-CXXFLAGS := -Wall -g
+CXXFLAGS :=  -Wall -g
 
 srcfiles := $(shell find . -name "*.cpp")
 objects  := $(patsubst %.cpp, %.o, $(srcfiles))
@@ -13,4 +13,4 @@ $(appname): $(objects)
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $(appname) $(objects) $(LDLIBS)
 
 clean:
-	$(RM) $(objects)
+	$(RM) *.o *~
