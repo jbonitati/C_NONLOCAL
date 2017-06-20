@@ -6,12 +6,12 @@
 #include <vector>
 #include <armadillo>
 #include <complex>
+#include <cstring>
 
 
-class Collision{
+class System{
   private:
     const double a; // channel radius
-    double b; //Bloch constant
     double energy; //projectile energy
     
     const Particle proj;  //projectile particle
@@ -26,23 +26,30 @@ class Collision{
     int basis_size;
     LagBasis lagrangeBasis;
     
+    double beta; //coupling constant
+    
+    
+    arma::mat<arma::cx_mat> cmatrixCalc();
+    arma::cx_mat rmatrixCalc();
+    arma::cx_mat umatrixCalc();
   public:
-    ~Collision(){
+    ~System(){
       for (std::vector<Channel *>::iterator it = channels.begin() ; it != channels.end(); ++it)
         delete (*it);
         
       channels.clear();
     }
     
-    Collision(const double a_size, double bloch, double e,
+    System(const double a_size, double e,
       const double m1, const double m2, const double z1, const double z2,
       const int num_channels_, std::vector<Channel*> channels_,
-      OpticalPotential op, NonLocalOpticalPotential nlop, int basis_size): 
-      a(a_size), b(bloch), energy(e), 
+      OpticalPotential op, NonLocalOpticalPotential nlop, int basis_size,
+      double coupling): 
+      a(a_size), energy(e), 
       proj(m1, z1), targ(m2, z2), 
       num_channels(num_channels_), channels(channels_),
-      pot(op), nlpot(nlop), basis_size(n), lagrangeBasis(n)
+      pot(op), nlpot(nlop), basis_size(n), lagrangeBasis(n), beta(coupling)
     { }
     
-    arma::cx_cube cmatrixCalc();
+    void calculateWaveFunction(std::string outFile);
 };

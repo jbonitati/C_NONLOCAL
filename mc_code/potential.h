@@ -15,8 +15,6 @@ class Potential{
       a = p.a;
     }
     
-    double central_potential(double R, Particle proj, Particle targ, Channel* c);
-    double coulomb_potential(double R, Particle proj, Particle targ);
 };
 
 class V_Potential : public Potential{
