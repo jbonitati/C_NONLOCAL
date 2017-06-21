@@ -39,7 +39,7 @@ const std::complex<double> I(0., 1.);
 //namespace is superior to static
 namespace { 
   System system;
-  std::string out_name;
+  std::string filename;
 }
 
 void loadSystem(){
@@ -47,7 +47,7 @@ void loadSystem(){
   boost::property_tree::ptree pt;
   boost::property_tree::ini_parser::read_ini("config.ini", pt);
   
-  out_name = pt.get<std::string>("Settings.output_file");
+  std::string filename = pt.get<std::string>("Settings.output_file");
   int num_channels = pt.get<int>("Settings.num_channels");
   
   std::vector<Channel*> channels;
@@ -128,14 +128,18 @@ void loadSystem(){
     SO_Potential(Vso1, Rso1, aso1), SO_Potential(Wso1, Rwso1, awso1), beta);
     
   system(a_size, E, m1, m2, z1, z2, 
-    num_channels, channels, op, nlop, NN, coupling);
+    num_channels, channels, op, nlop, NN, Nr, R_max, coupling);
 }
 
 int main()
 {   
   loadSystem();
   
-  system.calculateWaveFunction(out_name);
+  ofstream outfile("output/" + out_name);
+  
+  system.waveFunction(outfile);
+  
+  outfile.close();
   
   return 0;
 }

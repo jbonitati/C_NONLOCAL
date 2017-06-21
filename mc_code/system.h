@@ -24,14 +24,22 @@ class System{
     const NonLocalOpticalPotential nlpot; //manages nonlocal potential
     
     int basis_size;
+    double step_size;
+    double r_max;
     LagBasis lagrangeBasis;
     
     double beta; //coupling constant
     
+    arma::mat<arma::cx_mat> cmatrix;
+    arma::mat<arma::cx_mat> invcmatrix;
+    arma::cx_mat rmatrix;
+    arma::cx_mat umatrix;
     
-    arma::mat<arma::cx_mat> cmatrixCalc();
-    arma::cx_mat rmatrixCalc();
-    arma::cx_mat umatrixCalc();
+    void cmatrixCalc();
+    void rmatrixCalc();
+    void umatrixCalc();
+    
+    System(){ } //explicitly disallow default constructor
   public:
     ~System(){
       for (std::vector<Channel *>::iterator it = channels.begin() ; it != channels.end(); ++it)
@@ -44,12 +52,7 @@ class System{
       const double m1, const double m2, const double z1, const double z2,
       const int num_channels_, std::vector<Channel*> channels_,
       OpticalPotential op, NonLocalOpticalPotential nlop, int basis_size,
-      double coupling): 
-      a(a_size), energy(e), 
-      proj(m1, z1), targ(m2, z2), 
-      num_channels(num_channels_), channels(channels_),
-      pot(op), nlpot(nlop), basis_size(n), lagrangeBasis(n), beta(coupling)
-    { }
+      double step, double max, double coupling);
     
-    void calculateWaveFunction(std::string outFile);
+    void waveFunction(ofstream outFile);
 };

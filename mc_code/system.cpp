@@ -1,10 +1,34 @@
 #include <cmath>
 #include <gsl/gsl_sf.h>
+#include <fstream>
+#include "system.h"
+#include <cstdio>
 
 const double hbarc = 197.3269718;
 const double mass_unit=931.494;
 const double E2HC = 0.00729927;
 const arma::cx_double I(0.0,1.0);
+
+System::System(const double a_size, double e,
+  const double m1, const double m2, const double z1, const double z2,
+  const int n, std::vector<Channel*> channels_,
+  OpticalPotential op, NonLocalOpticalPotential nlop, int basis_size,
+  double step, double max, double coupling): 
+  a(a_size), energy(e), proj(m1, z1), targ(m2, z2), 
+  num_channels(n), channels(channels_),
+  pot(op), nlpot(nlop), basis_size(n), step_size(step), r_max(max),
+  lagrangeBasis(basis_size), beta(coupling),
+  cmatrix(n,n), invcmatrix(n,n), rmatrix(n,n), umatrix(n,n)
+{ 
+  //calculate C matrix and inverse C matrix
+  cmatrixCalc();
+  
+  //calculate R matrix
+  rmatrixCalc();
+  
+  //calculate U matrix
+  umatrixCalc();
+}
 
 /*Returns the Coulomb potential for particles at distance R*/
 double coulomb_potential(double R)
@@ -27,7 +51,7 @@ double coulomb_potential(double R)
 //calculates the coupling potential between two channels
 //****incomplete*****
 double couplingPotential(double r1, double r2, Channel * c1, Channel * c2){
-  if(c1 == c2){
+  if(*c1 == *c2){
     return 0;
   }else{
     return beta * (pot.totalPotential(r1, targ, c1) 
@@ -35,9 +59,8 @@ double couplingPotential(double r1, double r2, Channel * c1, Channel * c2){
   }
 }
 
-arma::mat<arma::cx_mat> System::cmatrixCalc(){
+void System::cmatrixCalc(){
   //the C matrix is made up of a different matrix for each pair of channels
-  arma::mat<arma::cx_mat> cmatrix(num_chanels,num_channels);
   int N = basis_size;
   
   //to iterate through the channels vector:
@@ -117,13 +140,15 @@ arma::mat<arma::cx_mat> System::cmatrixCalc(){
     }
     c++;
   }
-  return cmatrix;
+  //now create inverted C matrix
+  for(int i = 0; i < num_channels; i++)
+    for(int j = 0; j < num_channels; j++)
+      invcmatrix(i,j) = arma::inv(cmatrix(i,j));
 }
 
-/*calculates the rmatrix from the C matrix*/
-arma::cx_mat System::rmatrixCalc(arma::mat<arma::cx_mat> C){
-  arma::cx_mat rmatrix(num_channels, num_channels);
-  
+
+/*calculates the rmatrix from the inverse C matrix*/
+void System::rmatrixCalc(){
   std::vector<Channel *>::iterator c1, c2;
   int c = 0, cprime = 0;
   
@@ -131,7 +156,7 @@ arma::cx_mat System::rmatrixCalc(arma::mat<arma::cx_mat> C){
     
     for(c2 = channels.begin(); c2 != channels.end(); c2++){
       
-      arma::cx_mat cinv = arma::inv(C(c,cprime));
+      arma::cx_mat cinv = Ci->(c,cprime);
       double coeff = hbarc*hbarc / (2*a*sqrt((*c1)->getMu() * (*c2)->getMu()));
       
       double expansion = 0;
@@ -147,10 +172,10 @@ arma::cx_mat System::rmatrixCalc(arma::mat<arma::cx_mat> C){
     }
     c++;
   }
-  return rmatrix;
 }
 
-arma::cx_mat System::umatrixCalc(arma::cx_mat R){
+//calculates and returns the collision matrix from the R matrix
+void System::umatrixCalc(){
   arma::cx_mat zimatrix(num_channels,num_channels);
   arma::cx_mat zomatrix(num_channels,num_channels);
   arma::cx_double ovalue, ivalue, opvalue, ipvalue, ovalue2, ivalue2, opvalue2, ipvalue2;
@@ -159,37 +184,15 @@ arma::cx_mat System::umatrixCalc(arma::cx_mat R){
   int c = 0, cprime = 0;
   
   for(c1 = channels.begin(); c1 != channels.end(); c1++){
-    //calculate wavenumber, rel velocity, and Sommerfeld parameter
-    // assuming open channel:
-    double kc = sqrt(2*(*c1)->getMu()*(energy - (*c1)->getE())) / hbarc;
-    double vc = hbarc*kc / (*c1)->getMu();
-    double etac = targ.getZ()*proj.getZ()
-      *E2HC/(hbarc*vc);
-      
-    double hbarx = hbarc*hbarc/(2*mass_unit*(*c1)->getMu());
-    double q = sqrt(energy/hbarx);
-    
-    gsl_sf_result F1,G1,Fp1,Gp1,F2,G2,Fp2,Gp2;
-    double exp_F1, exp_G1, exp_F2, exp_G2;
-    gsl_sf_coulomb_wave_FG_e(etac,kc*a,(*c1)->getL(),0,&F1,&Fp1,&G1,&Gp1,&exp_F1,&exp_G1);
-    ovalue =(G.val+I*F.val);
-    ivalue =(G.val-I*F.val);
-    opvalue =q*(Gp.val+I*Fp.val);
-    ipvalue =q*(Gp.val-I*Fp.val);
+    double kc = (*c1)->getKc(energy);
+    (*c1)->io_coulomb_functions(kc*a, energy, targ, proj, 
+      &ivalue, &ovalue, &ipvalue, &opvalue);
     
     for(c2 = channels.begin(); c2 != channels.end(); c2++){
-      double kc2 = sqrt(2*(*c2)->getMu()*(energy - (*c2)->getE())) / hbarc;
-      double vc2 = hbarc*kc2 / (*c2)->getMu();
-      double etac2 = targ.getZ()*proj.getZ()
-        *E2HC/(hbarc*vc2);
-        
-      double hbarx2 = hbarc*hbarc/(2*mass_unit*(*c2)->getMu());
-      double q2 = sqrt(energy/hbarx2);
-      gsl_sf_coulomb_wave_FG_e(etac2,kc2*a,(*c2)->getL(),0,&F2,&Fp2,&G2,&Gp2,&exp_F2,&exp_G2); 
-      ovalue2 =(G2.val+I*F2.val);
-      ivalue2 =(G2.val-I*F2.val);
-      opvalue2 =q2*(Gp2.val+I*Fp2.val);
-      ipvalue2 =q2*(Gp2.val-I*Fp2.val);
+      double kc2 = (*c2)->getKc(energy);
+      
+      (*c2)->io_coulomb_functions(kc2*a, energy, targ, proj, 
+        &ivalue2, &ovalue2, &ipvalue2, &opvalue2);
       
       zomatrix(c,cprime) = (-1*kc2*a*rmatrix(c,cprime)*opvalue2)
         / (sqrt(kc2*a));
@@ -203,23 +206,63 @@ arma::cx_mat System::umatrixCalc(arma::cx_mat R){
     }
     c++;
   }
-  return arma::inv(zomatrix)*zimatrix;
+  umatrix = (arma::inv(zomatrix)*zimatrix);
 }
 
-void System::calculateWaveFunction(std::string outFile){
-    
-  //calculate C matrix
+//takes the C and U matrices and stores the wavefunction values for each
+//channel in the specified file
+void System::waveFunction(std::ofstream file){
+  std::cout << "Calculating partial wave functions..." << std::endl;
+  file << std::endl << "Printing partial wave functions" << std::endl;
+  int c = 0, cprime = 0;
+  std::vector<Channel *>::iterator c1, c2;
   
-  arma::cx_mat cmatrix = cmatrixCalc();
+  file << "r";
+  for(int i = 1; i <= num_channels; i++){
+    file << "\t\tChannel " << i;
+  }
+  file << std::endl;
   
-  //calculate R matrix
-  
-  arma::cx_mat rmatrix = rmatrixCalc(cmatrix);
-  
-  //calculate U matrix
-  
-  arma::cx_mat umatrix = umatrixCalc(rmatrix);
-  
-  //calculate wave function
-  waveFunction(cmatrix, umatrix);
+  for(double r = 0; r < a; r += step_size){
+    file << r;
+    for(c1 = channels.begin(); c1 != channels.end(); c1++){
+      //compute partial wave function u^int_c(c0)(r)
+      //sum contains the coefficient calculated over all open channels
+      arma::cx_double sum = 0;
+      
+      arma::cx_double oval, ival, opval, ipval;
+      for(c2 = channels.begin(); c2 != channels.end(); c2++){
+        //check if channel is open
+        
+        double 
+        
+        double kc = (*c2)->getKc(energy);
+        double vc = (*c2)->getVc(energy);
+        double mu = (*c2)->getMu();
+        (*c2)->io_coulomb_functions(kc*a, energy, targ, proj, 
+          &ival, &oval, &ipval, &opval);
+        double coeff = hbarc*hbarc*kc/(2*mu*sqrt(vc));
+        arma::cx_double outersum = 
+          -1.0 *coeff*umatrix(cprime, entrance_channel)*opval;
+        if(cprime == entrance_channel)
+          outersum += coeff*ipval;
+        
+        arma::cx_double innersum = 0;
+        for(int i = 0; i < basis_size; i++){
+          for(int j = 0; j < basis_size; j++){
+            innersum += lagrangeBasis.phi(i,r)
+              *invcmatrix(c,cprime)(i,j)
+              *lagrangeBasis.phi(j,a);
+          }
+        }
+        sum += outersum*innersum;
+        
+        cprime++;
+      }
+      file << "\t\t" << sum;
+      
+      c++;
+    }
+    file << std::endl;
+  }
 }

@@ -1,3 +1,4 @@
+#include "particle.h"
 
 class Channel{
   private:
@@ -21,7 +22,10 @@ class Channel{
     const double getSpin()const{return m;}
     double getMu()const{return mu;}
     const double getB()const{return b;}
+    double getKc(double energy);
+    double getVc(double energy);
     
-    double central_potential(double R, Particle proj, Particle targ);
-    double coulomb_potential(double R, Particle proj, Particle targ);
+    double central_potential(double R);
+    void io_coulomb_functions(double x, double energy, Particle targ, Particle proj,
+      double *I, double *O, double *Ip, double *Op);
 };
