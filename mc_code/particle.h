@@ -1,3 +1,4 @@
+#pragma once
 
 class Particle{
   private:
@@ -11,4 +12,6 @@ class Particle{
     const double getM() const {return m;}
     const double getZ() const {return z;}
     const double getN() const {return n;}
+    
+    double coulomb_potential_to(double R, Particle targ)const;
 };

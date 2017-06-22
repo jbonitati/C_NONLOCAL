@@ -1,4 +1,6 @@
 #include "particle.h"
+#include <armadillo>
+#pragma once
 
 class Channel{
   private:
@@ -13,7 +15,7 @@ class Channel{
     
   public:
     Channel(const double energy, const double l_, const double j_,
-    const double m_)):
+    const double m_):
       E(energy), l(l_), j(j_), m(m_), b(0){  }
     
     const double getE()const{return E;}
@@ -27,5 +29,5 @@ class Channel{
     
     double central_potential(double R);
     void io_coulomb_functions(double x, double energy, Particle targ, Particle proj,
-      double *I, double *O, double *Ip, double *Op);
+      arma::cx_double *I, arma::cx_double *O, arma::cx_double *Ip, arma::cx_double *Op);
 };

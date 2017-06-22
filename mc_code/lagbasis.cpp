@@ -1,8 +1,10 @@
-#include <gsl/gsl_sf_legendre.h>
+#include <gsl/gsl_sf.h>
+#include <cmath>
+#include "lagbasis.h"
 
 //Weichuan's code for computing the first n weights and abcissae for the 
 //Gauss Legendre quadrature rule used in calculating lagrange functions
-void gauleg(const double x1, const double x2, int n)
+void LagBasis::gauleg(const double x1, const double x2, int n)
 {
 	const double EPS=1.0e-10;
 	int m,j,i;
@@ -47,7 +49,9 @@ double LagBasis::phi(int i, double r)const{
 
 //Lagrange Basis constructor
 //precomputes all necessary values of the first n basis functions
-LagBasis::LagBasis(int n): size(n), weights[n], xi[n]{
+LagBasis::LagBasis(int n, double a_): size(n), a(a_){
+  weights = new double[n];
+  xi = new double[n];
   gauleg(-1,1,n);
 }
 

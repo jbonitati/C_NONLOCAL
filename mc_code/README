@@ -1,0 +1,4 @@
+This program computes the wave function of a projectile nucleus 
+in a nuclear transfer reaction using the calculable R-matrix method.
+We take into consideration multiple channels as well as both local and 
+non local potentials.

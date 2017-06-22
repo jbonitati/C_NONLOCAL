@@ -21,6 +21,7 @@
 #include <cmath>
 #include <fstream>
 #include <cstring>
+#include <string>
 #include <iomanip>
 
 #include <boost/property_tree/ptree.hpp>
@@ -38,7 +39,7 @@ const std::complex<double> I(0., 1.);
 
 //namespace is superior to static
 namespace { 
-  System system;
+  System * mySystem;
   std::string filename;
 }
 
@@ -49,6 +50,7 @@ void loadSystem(){
   
   std::string filename = pt.get<std::string>("Settings.output_file");
   int num_channels = pt.get<int>("Settings.num_channels");
+  int c0 = pt.get<int>("Settings.entrance_channel");
   
   std::vector<Channel*> channels;
   channels.reserve(num_channels);
@@ -127,17 +129,17 @@ void loadSystem(){
     D_Potential(Vd1, rvd1, avd1), D_Potential(Wd1,rwd1,awd1),
     SO_Potential(Vso1, Rso1, aso1), SO_Potential(Wso1, Rwso1, awso1), beta);
     
-  system(a_size, E, m1, m2, z1, z2, 
-    num_channels, channels, op, nlop, NN, Nr, R_max, coupling);
+  mySystem = new System(a_size, E, m1, m2, z1, z2, 
+    num_channels, c0, channels, op, nlop, NN, Nr, R_max, coupling);
 }
 
 int main()
 {   
   loadSystem();
   
-  ofstream outfile("output/" + out_name);
+  std::ofstream outfile(("output/" + filename).c_str());
   
-  system.waveFunction(outfile);
+  mySystem->waveFunction(outfile);
   
   outfile.close();
   

@@ -2,41 +2,37 @@
 #include <stdexcept>
 
 class Potential{
-  private:
+  protected:
     const double coeff, r, a;
   
   public:
     Potential(const double coefficient, const double radius, const double a_):
       coeff(coefficient), r(radius), a(a_){ }
       
-    Potential(const Potential& p){
-      coeff = p.coeff;
-      r = p.r;
-      a = p.a;
-    }
+    Potential(const Potential& p): coeff(p.coeff), r(p.r), a(p.a){ }
     
 };
 
 class V_Potential : public Potential{
   public:
-    double getValue(double R, Particle p);
+    double getValue(double R, Particle p)const;
     V_Potential(const double c, const double r_, const double a_):
       Potential(c,r_,a_){ }
-    V_Potential(const V_Potential &p):Potential(p){ }
+    V_Potential(const Potential &p):Potential(p){ }
 };
 
 class D_Potential : public Potential{
   public:
-    double getValue(double R, Particle p);
+    double getValue(double R, Particle p)const;
     D_Potential(const double c, const double r_, const double a_):
       Potential(c,r_,a_){ }
-    D_Potential(const D_Potential &p):Potential(p){ }
+    D_Potential(const Potential &p):Potential(p){ }
 };
 
 class SO_Potential : public Potential{
   public:
-    double getValue(double R, Particle p, Channel * c);
+    double getValue(double R, Particle p, Channel * c)const;
     SO_Potential(const double c, const double r_, const double a_):
       Potential(c,r_,a_){ }
-    SO_Potential(const SO_Potential &p):Potential(p){ }
+    SO_Potential(const Potential &p):Potential(p){ }
 };

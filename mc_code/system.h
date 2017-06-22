@@ -3,11 +3,15 @@
 #include "OpticalPotential.h"
 #include "lagbasis.h"
 
+#include <boost/serialization/array_wrapper.hpp>
 #include <vector>
+#include <boost/numeric/ublas/matrix.hpp>
 #include <armadillo>
 #include <complex>
 #include <cstring>
+#include <fstream>
 
+using namespace boost::numeric::ublas;
 
 class System{
   private:
@@ -18,6 +22,7 @@ class System{
     const Particle targ; //target particle
     
     const int num_channels;
+    int entrance_channel;
     std::vector<Channel*> channels;
     
     const OpticalPotential pot; //manages local potential
@@ -30,8 +35,8 @@ class System{
     
     double beta; //coupling constant
     
-    arma::mat<arma::cx_mat> cmatrix;
-    arma::mat<arma::cx_mat> invcmatrix;
+    matrix<arma::cx_mat> cmatrix; //C and its inverse are matrices of matrices
+    matrix<arma::cx_mat> invcmatrix;
     arma::cx_mat rmatrix;
     arma::cx_mat umatrix;
     
@@ -39,20 +44,21 @@ class System{
     void rmatrixCalc();
     void umatrixCalc();
     
-    System(){ } //explicitly disallow default constructor
+    arma::cx_double couplingPotential(double r1, double r2, Channel * c1, Channel * c2);
+    
+    System(); //explicitly disallow default constructor
   public:
     ~System(){
       for (std::vector<Channel *>::iterator it = channels.begin() ; it != channels.end(); ++it)
         delete (*it);
-        
       channels.clear();
     }
     
     System(const double a_size, double e,
       const double m1, const double m2, const double z1, const double z2,
-      const int num_channels_, std::vector<Channel*> channels_,
+      const int num_channels_, int c0, std::vector<Channel*> channels_,
       OpticalPotential op, NonLocalOpticalPotential nlop, int basis_size,
       double step, double max, double coupling);
     
-    void waveFunction(ofstream outFile);
+    void waveFunction(std::ofstream& outFile);
 };

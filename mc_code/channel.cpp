@@ -1,5 +1,5 @@
 #include <cmath>
-#include <gsl/gsl_sf>
+#include <gsl/gsl_sf.h>
 #include <complex>
 #include <armadillo>
 #include "channel.h"
@@ -37,10 +37,10 @@ double Channel::getVc(double energy){
 
 //calculates the conjugate functions I and O from the coulomb functions at kc*a
 //stores the values in I and O, and stores the derivative values in Ip and Op
-void Channel::io_coulomb_functions(double x, double energy, Patricle targ, Particle Proj,
+void Channel::io_coulomb_functions(double x, double energy, Particle targ, Particle proj,
   arma::cx_double *I1, arma::cx_double *O1, arma::cx_double *Ip1, arma::cx_double *Op1){
 
-  double kc = getKc(energy);
+  //double kc = getKc(energy);
   double vc = getVc(energy);
   double etac = targ.getZ()*proj.getZ()*E2HC/(hbarc*vc);
     
@@ -48,12 +48,12 @@ void Channel::io_coulomb_functions(double x, double energy, Patricle targ, Parti
   double q = sqrt(energy/hbarx);
   
   gsl_sf_result F1,G1,Fp1,Gp1;
-  double exp_F1, exp_G1, exp_F2, exp_G2;
-  gsl_sf_coulomb_wave_FG_e(etac,x,L,0,&F1,&Fp1,&G1,&Gp1,&exp_F1,&exp_G1);
-  I1 = G1.val - I*F1.val;
-  Ip1 = q*(Gp1.val - I*Fp1.val);
-  O1 = G1.val + I*Fl.val;
-  Op1 = q*(Gp1.val + I*Fp1.val);
+  double exp_F1, exp_G1;
+  gsl_sf_coulomb_wave_FG_e(etac,x,l,0,&F1,&Fp1,&G1,&Gp1,&exp_F1,&exp_G1);
+  *I1 = G1.val - I*F1.val;
+  *Ip1 = q*(Gp1.val - I*Fp1.val);
+  *O1 = G1.val + I*F1.val;
+  *Op1 = q*(Gp1.val + I*Fp1.val);
   
 }
 
