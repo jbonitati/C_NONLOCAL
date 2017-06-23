@@ -11,7 +11,7 @@ double V_Potential::getValue(double R, Particle p)const{
 
 double D_Potential::getValue(double R, Particle p)const{
   double Rr = r*pow(p.getM(),1.0/3.0);
-    return (-4.0*coeff*exp((R-Rr)/a))/pow((1.0+exp((R-Rr)/a)),2.0);
+  return (-4.0*coeff*exp((R-Rr)/a))/pow((1.0+exp((R-Rr)/a)),2.0);
 }
 
 double SO_Potential::getValue(double R, Particle p, Channel * c)const{
@@ -25,4 +25,10 @@ double SO_Potential::getValue(double R, Particle p, Channel * c)const{
   *(exp((R-Rr)/a))/(pow((1.0+exp((R-Rr)/a)),2.0));
 
   return Vspin;
+}
+
+double Coupling_Potential::getValue(double r1, double r2, Particle p)const{
+  double Rr = r*pow(p.getM(),1.0/3.0);
+  double R = (r1+r2)/2.0;
+  return beta*(-1.0*a*coeff*exp((R-Rr)/a))/pow((1.0+exp((R-Rr)/a)),2.0);
 }

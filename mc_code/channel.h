@@ -4,30 +4,29 @@
 
 class Channel{
   private:
-    const double E; //energy
-    const double l; //projectile angular momentum
-    const double j; //total angular momentum
-    const double m; //projectile spin
+    double E; //energy
+    int l; //projectile angular momentum
+    double j; //total angular momentum
+    double m; //projectile spin
     double mu; //reduced mass
     double b; //bloch constant
-    //spin?
-    //mass?
     
   public:
-    Channel(const double energy, const double l_, const double j_,
-    const double m_):
-      E(energy), l(l_), j(j_), m(m_), b(0){  }
+    Channel(const double energy, const int l_, const double j_,
+    const double mu_):
+      E(energy), l(l_), j(j_), m(j_ - l_), mu(mu_), b(0){ }
     
-    const double getE()const{return E;}
-    const double getL()const{return l;}
-    const double getJ()const{return j;}
-    const double getSpin()const{return m;}
+    double getE()const{return E;}
+    int getL()const{return l;}
+    double getJ()const{return j;}
+    double getSpin()const{return m;}
     double getMu()const{return mu;}
-    const double getB()const{return b;}
-    double getKc(double energy);
-    double getVc(double energy);
+    double getB()const{return b;}
+    double getKc(double energy)const;
+    double getVc(double energy)const;
+    double getEta(double energy, Particle targ, Particle proj)const;
     
-    double central_potential(double R);
+    double central_potential(double R)const;
     void io_coulomb_functions(double x, double energy, Particle targ, Particle proj,
-      arma::cx_double *I, arma::cx_double *O, arma::cx_double *Ip, arma::cx_double *Op);
+      arma::cx_double *I, arma::cx_double *O, arma::cx_double *Ip, arma::cx_double *Op)const;
 };

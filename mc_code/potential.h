@@ -3,7 +3,7 @@
 
 class Potential{
   protected:
-    const double coeff, r, a;
+    double coeff, r, a;
   
   public:
     Potential(const double coefficient, const double radius, const double a_):
@@ -35,4 +35,14 @@ class SO_Potential : public Potential{
     SO_Potential(const double c, const double r_, const double a_):
       Potential(c,r_,a_){ }
     SO_Potential(const Potential &p):Potential(p){ }
+};
+
+class Coupling_Potential : public Potential{
+  private:
+    double beta;//coupling constant
+  public:
+    Coupling_Potential():Potential(0,0,0), beta(0){ }
+    Coupling_Potential(double v, double r_, double a_, double b):
+      Potential(v,r_,a_), beta(b){ }
+    double getValue(double r1, double r2, Particle p)const;
 };

@@ -1,7 +1,7 @@
 appname := run
 
 CXX := g++
-LDLIBS := -lgsl -lgslcblas -larmadillo
+LDLIBS := -lgsl -lgslcblas -larmadillo -lboost_system
 CXXFLAGS :=  -Wall -g
 
 srcfiles := $(shell find . -name "*.cpp")

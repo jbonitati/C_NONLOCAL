@@ -11,7 +11,7 @@ const double E2HC = 0.00729927;
 const arma::cx_double I(0.0,1.0);
 
 /*Returns the potential due to the centrifugal term in the Hamiltonian*/
-double Channel::central_potential(double R)
+double Channel::central_potential(double R)const
 {
 	double constant = (pow(hbarc,2)/(2.0*mass_unit*mu));
 
@@ -20,7 +20,7 @@ double Channel::central_potential(double R)
 
 //returns the wave number of the channel with respect to
 // the total energy of the system
-double Channel::getKc(double energy){
+double Channel::getKc(double energy)const{
   if(energy > E)
    return sqrt(2*mu*mass_unit*(energy - E)) / hbarc;
   else
@@ -29,20 +29,24 @@ double Channel::getKc(double energy){
 
 //returns the relative velocity of the channel with respect to 
 // the total energy of the sytem
-double Channel::getVc(double energy){
+double Channel::getVc(double energy)const{
   double kc = getKc(energy);
   double vc = hbarc*kc / (mu*mass_unit);
   return vc;
 }
 
+//returns the Sommerfeld parameter for the channel
+double Channel::getEta(double energy, Particle targ, Particle proj)const{
+  double vc = getVc(energy);
+  return targ.getZ()*proj.getZ()*E2HC/(hbarc*vc);
+}
+
 //calculates the conjugate functions I and O from the coulomb functions at kc*a
 //stores the values in I and O, and stores the derivative values in Ip and Op
 void Channel::io_coulomb_functions(double x, double energy, Particle targ, Particle proj,
-  arma::cx_double *I1, arma::cx_double *O1, arma::cx_double *Ip1, arma::cx_double *Op1){
+  arma::cx_double *I1, arma::cx_double *O1, arma::cx_double *Ip1, arma::cx_double *Op1)const{
 
-  //double kc = getKc(energy);
-  double vc = getVc(energy);
-  double etac = targ.getZ()*proj.getZ()*E2HC/(hbarc*vc);
+  double etac = getEta(energy,targ,proj);
     
   double hbarx = hbarc*hbarc/(2*mass_unit*mu);
   double q = sqrt(energy/hbarx);

@@ -19,9 +19,9 @@
 #include <complex>
 #include <vector>
 #include <cmath>
-#include <fstream>
 #include <cstring>
 #include <string>
+#include <fstream>
 #include <iomanip>
 
 #include <boost/property_tree/ptree.hpp>
@@ -37,6 +37,8 @@ const double E2HC = 0.00729927;
 const double PI = 3.14159265359;
 const std::complex<double> I(0., 1.);
 
+using namespace boost::numeric::ublas;
+
 //namespace is superior to static
 namespace { 
   System * mySystem;
@@ -48,25 +50,10 @@ void loadSystem(){
   boost::property_tree::ptree pt;
   boost::property_tree::ini_parser::read_ini("config.ini", pt);
   
-  std::string filename = pt.get<std::string>("Settings.output_file");
+  filename = pt.get<std::string>("Settings.output_file");
   int num_channels = pt.get<int>("Settings.num_channels");
   int c0 = pt.get<int>("Settings.entrance_channel");
   
-  std::vector<Channel*> channels;
-  channels.reserve(num_channels);
-  
-  try{
-    for(int i = 1; i <= num_channels; i++){
-    channels.push_back(new Channel(
-      pt.get<double>("Channel" + boost::lexical_cast<std::string>(i) + ".Energy"), 
-      pt.get<double>("Channel" + boost::lexical_cast<std::string>(i) + ".Angular_momentum"), 
-      pt.get<double>("Channel" + boost::lexical_cast<std::string>(i) + ".Total_angular_momentum"),
-      pt.get<double>("Channel" + boost::lexical_cast<std::string>(i) + ".Spin")));
-    }
-  }catch(...){
-    std::cerr << "\nError reading channel values. Make sure all channels are specified in config" << std::endl << std::endl;
-    throw;
-  }
   int NN=pt.get<int>("Numerical.Basis_size") ;
 
   double m1=pt.get<double>("Numerical.Projectile_mass_number") ;
@@ -122,7 +109,37 @@ void loadSystem(){
 
   double beta=pt.get<double>("Non_local.beta");
   
-  double coupling = pt.get<double>("coupling.beta");
+  matrix<Coupling_Potential> cpmat(num_channels, num_channels);
+  for(int i = 1; i <= num_channels; i++){
+    cpmat(i-1,i-1) = Coupling_Potential();
+    for(int j = i+1; j <= num_channels; j++){
+      std::string cp = "coupling" 
+        + boost::lexical_cast<std::string>(i)
+        + boost::lexical_cast<std::string>(j);
+      cpmat(i-1,j-1) = Coupling_Potential(pt.get<double>(cp + ".V"), 
+        pt.get<double>(cp+".r"),
+        pt.get<double>(cp+".a"),
+        pt.get<double>(cp+".beta"));
+      cpmat(j-1,i-1) = cpmat(i-1,j-1);
+    
+    }
+  }
+  
+  std::vector<Channel> channels;
+  channels.reserve(num_channels);
+  double mu = m1*m2/ (m1+m2);
+  try{
+    for(int i = 1; i <= num_channels; i++){
+      channels.push_back(Channel(
+        pt.get<double>("Channel" + boost::lexical_cast<std::string>(i) + ".Energy"), 
+        pt.get<int>("Channel" + boost::lexical_cast<std::string>(i) + ".Angular_momentum"), 
+        pt.get<double>("Channel" + boost::lexical_cast<std::string>(i) + ".Total_angular_momentum"),
+        mu));
+    }
+  }catch(...){
+    std::cerr << "\nError reading channel values. Make sure all channels are specified in config" << std::endl << std::endl;
+    throw;
+  }
   
   NonLocalOpticalPotential nlop(V_Potential(Vv1, rv1, av1), 
     V_Potential(Wv1, rwv1, awv1),
@@ -130,15 +147,20 @@ void loadSystem(){
     SO_Potential(Vso1, Rso1, aso1), SO_Potential(Wso1, Rwso1, awso1), beta);
     
   mySystem = new System(a_size, E, m1, m2, z1, z2, 
-    num_channels, c0, channels, op, nlop, NN, Nr, R_max, coupling);
+    c0, channels, op, nlop, NN, Nr, R_max, cpmat);
 }
 
 int main()
 {   
+  
+  std::cout << "Initializing system..." << std::endl;
   loadSystem();
   
-  std::ofstream outfile(("output/" + filename).c_str());
+  boost::filesystem::path filePath("output/" + filename);
+  boost::filesystem::ofstream outfile(filePath);
+  std::cout << "Creating output file: " << filePath << std::endl;
   
+  std::cout << "Calculating wave functions..." << std::endl;
   mySystem->waveFunction(outfile);
   
   outfile.close();

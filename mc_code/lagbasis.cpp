@@ -1,5 +1,6 @@
 #include <gsl/gsl_sf.h>
 #include <cmath>
+#include <iostream>
 #include "lagbasis.h"
 
 //Weichuan's code for computing the first n weights and abcissae for the 
@@ -52,6 +53,7 @@ double LagBasis::phi(int i, double r)const{
 LagBasis::LagBasis(int n, double a_): size(n), a(a_){
   weights = new double[n];
   xi = new double[n];
+  std::cout << "Precomputing basis functions..." << std::endl;
   gauleg(-1,1,n);
 }
 
