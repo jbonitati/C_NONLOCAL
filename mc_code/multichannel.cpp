@@ -52,7 +52,7 @@ void loadSystem(){
   
   filename = pt.get<std::string>("Settings.output_file");
   int num_channels = pt.get<int>("Settings.num_channels");
-  int c0 = pt.get<int>("Settings.entrance_channel");
+  int c0 = pt.get<int>("Settings.entrance_channel")-1;
   
   int NN=pt.get<int>("Numerical.Basis_size") ;
 
@@ -119,7 +119,8 @@ void loadSystem(){
       cpmat(i-1,j-1) = Coupling_Potential(pt.get<double>(cp + ".V"), 
         pt.get<double>(cp+".r"),
         pt.get<double>(cp+".a"),
-        pt.get<double>(cp+".beta"));
+        pt.get<double>(cp+".beta"),
+        beta);
       cpmat(j-1,i-1) = cpmat(i-1,j-1);
     
     }

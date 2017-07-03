@@ -39,10 +39,11 @@ class SO_Potential : public Potential{
 
 class Coupling_Potential : public Potential{
   private:
-    double beta;//coupling constant
+    double beta_c;//coupling constant
+    double beta_nl; //range of nonlocality
   public:
-    Coupling_Potential():Potential(0,0,0), beta(0){ }
-    Coupling_Potential(double v, double r_, double a_, double b):
-      Potential(v,r_,a_), beta(b){ }
+    Coupling_Potential():Potential(0,0,0), beta_c(0), beta_nl(0){ }
+    Coupling_Potential(double v, double r_, double a_, double bc, double bnl):
+      Potential(v,r_,a_), beta_c(bc), beta_nl(bnl){ }
     double getValue(double r1, double r2, Particle p)const;
 };
