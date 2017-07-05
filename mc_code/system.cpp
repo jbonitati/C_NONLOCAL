@@ -85,14 +85,14 @@ void System::cmatrixCalc(){
               TLmatrix(j,i)=TLmatrix(i,j);
             }
             
-            Vmatrix(i,j) += a*ri*rj*sqrt(lagrangeBasis.w(i)*lagrangeBasis.w(j)) 
+            Vmatrix(i,j) += a*sqrt(lagrangeBasis.w(i)*lagrangeBasis.w(j)) 
               * nlpot.totalPotential(ri, rj, targ, c1);
           }
         }
         cmatrix(c,cprime) = TLmatrix + Vmatrix;
         
       }else{
-        //only include coupling potential
+        //only include coupling potential for different channels
         for(int i = 0; i < N; i++){
           double xi = lagrangeBasis.x(i);
           double ri = a*xi;
@@ -101,7 +101,8 @@ void System::cmatrixCalc(){
             double xj = lagrangeBasis.x(j);
             double rj = a*xj;
             
-            Vmatrix(i,j) = couplingPotential(ri,rj,c,cprime);
+            Vmatrix(i,j) = a*sqrt(lagrangeBasis.w(i)*lagrangeBasis.w(j))
+              *couplingPotential(ri,rj,c,cprime);
           }
         }
         cmatrix(c,cprime) = Vmatrix;
@@ -186,12 +187,12 @@ void System::waveFunction(boost::filesystem::ofstream& file){
   
   file << "r";
   for(unsigned int i = 1; i <= channels.size(); i++){
-    file << "\t\tChannel " << i;
+    file << ", Channel " << i;
   }
   file << std::endl;
-  file << "-----------------------------------------------------------" << std::endl;
+  
   double r;
-  for(r = 0; r < a; r += step_size){    
+  for(r = 0; r < a && r <= r_max; r += step_size){    
     file << r;
     for(unsigned int c = 0; c < channels.size(); c++){
       //Channel * c1 = &channels[c];
@@ -226,13 +227,13 @@ void System::waveFunction(boost::filesystem::ofstream& file){
         sum += outersum*innersum;
         
       }
-      file << "\t\t" << std::real(sum);
+      file << ", " << std::real(sum);
     }
     file << std::endl;
   }
   
   //now print the external wave function
-  while(r < r_max){
+  while(r <= r_max){
    file << r;
    for(unsigned int c = 0; c < channels.size(); c++){
       arma::cx_double oval, ival, opval, ipval;
@@ -267,7 +268,7 @@ void System::waveFunction(boost::filesystem::ofstream& file){
         }
         wfvalue = coeff*sum*whittaker(-1.0*etac, c1->getL()+0.5,2*kc*r);
       }
-      file << "\t\t" << std::real(wfvalue);
+      file << ", " << std::real(wfvalue);
     }
     file << std::endl;
   

@@ -157,7 +157,7 @@ int main()
   std::cout << "Initializing system..." << std::endl;
   loadSystem();
   
-  boost::filesystem::path filePath("output/" + filename);
+  boost::filesystem::path filePath("output/" + filename + ".csv");
   boost::filesystem::ofstream outfile(filePath);
   std::cout << "Creating output file: " << filePath << std::endl;
   
