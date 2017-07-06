@@ -4,10 +4,10 @@
 #include "system.h"
 #include <iostream>
 
-const double hbarc = 197.3269718;
-const double mass_unit=931.494;
-const double E2HC = 0.00729927;
+const double hbarc = 197.3269718; //MeV * fm
+const double mass_unit=931.494; //MeV / c^2
 const arma::cx_double I(0.0,1.0);
+const arma::cx_double nrmlz = I/2.0;//normalization constant
 
 using namespace boost::numeric::ublas;
 
@@ -128,7 +128,7 @@ void System::rmatrixCalc(){
       Channel * c2 = &channels[cprime];
       arma::cx_mat cinv = invcmatrix(c,cprime);
       
-      double coeff = hbarc*hbarc / (2*a*sqrt(c1->getMu() * c2->getMu()));
+      double coeff = hbarc*hbarc / (2*a*mass_unit*sqrt(c1->getMu() * c2->getMu()));
       
       arma::cx_double expansion = 0;
       for(int i = 0; i < basis_size; i++){
@@ -158,17 +158,16 @@ void System::umatrixCalc(){
     for(unsigned int cprime = 0; cprime < channels.size(); cprime++){
       Channel * c2 = &channels[cprime];
       double kc2 = c2->getKc(energy);
+      arma::cx_double coeff = nrmlz*1.0 / (sqrt(kc2*a)); 
       
       c2->io_coulomb_functions(kc2*a, energy, targ, proj, 
         &ivalue2, &ovalue2, &ipvalue2, &opvalue2);
       
-      zomatrix(c,cprime) = (-1*kc2*a*rmatrix(c,cprime)*opvalue2)
-        / (sqrt(kc2*a));
-      zimatrix(c,cprime) = (-1*kc2*a*rmatrix(c,cprime)*ipvalue2)
-        / (sqrt(kc2*a));
+      zomatrix(c,cprime) = coeff*(-1*kc2*a*rmatrix(c,cprime)*opvalue2);
+      zimatrix(c,cprime) = coeff*(-1*kc2*a*rmatrix(c,cprime)*ipvalue2);
       if(c == cprime){
-        zomatrix += ovalue / (sqrt(kc2*a));
-        zimatrix += ivalue / (sqrt(kc2*a));
+        zomatrix += coeff*ovalue;
+        zimatrix += coeff*ivalue;
       }
     }
   }
@@ -185,6 +184,7 @@ double whittaker(double k, double m, double z){
 //channel in the specified file
 void System::waveFunction(boost::filesystem::ofstream& file){
   
+  
   file << "r";
   for(unsigned int i = 1; i <= channels.size(); i++){
     file << ", Channel " << i;
@@ -195,7 +195,7 @@ void System::waveFunction(boost::filesystem::ofstream& file){
   for(r = 0; r < a && r <= r_max; r += step_size){    
     file << r;
     for(unsigned int c = 0; c < channels.size(); c++){
-      //Channel * c1 = &channels[c];
+      Channel * c1 = &channels[c];
       
       //compute partial wave function u^int_c(c0)(r)
       //sum contains the coefficient calculated over all open channels
@@ -210,7 +210,7 @@ void System::waveFunction(boost::filesystem::ofstream& file){
         double mu = c2->getMu();
         c2->io_coulomb_functions(kc*a, energy, targ, proj, 
           &ival, &oval, &ipval, &opval);
-        double coeff = hbarc*hbarc*kc/(2*mu*sqrt(vc));
+        double coeff = hbarc*hbarc*kc/(2*mass_unit*mu*sqrt(vc));
         arma::cx_double outersum = 
           -1.0 *coeff*umatrix(cprime, entrance_channel)*opval;
         if(cprime == entrance_channel)
@@ -227,7 +227,8 @@ void System::waveFunction(boost::filesystem::ofstream& file){
         sum += outersum*innersum;
         
       }
-      file << ", " << std::real(sum);
+      sum *= nrmlz;
+      file << ", " << std::norm(sum);
     }
     file << std::endl;
   }
@@ -254,21 +255,22 @@ void System::waveFunction(boost::filesystem::ofstream& file){
       }else{
         double coeff = 1.0/whittaker(-1.0*etac, c1->getL() + 0.5, 2*kc*a);
         arma::cx_double sum = 0;
-        for(unsigned int cprime = 0; cprime < channels.size();c++){
+        for(unsigned int cprime = 0; cprime < channels.size();cprime++){
           Channel * c2 = &channels[cprime];
           arma::cx_double oval2, ival2, opval2, ipval2;
           double kc2 = c2->getKc(energy);
           double mu2 = c2->getMu();
           c2->io_coulomb_functions(kc*r, energy, targ, proj, 
             &ival2, &oval2, &ipval2, &opval2);
-          arma::cx_double sumcoeff = sqrt(mu2*kc2/hbarc)*a*rmatrix(c,cprime);
+          arma::cx_double sumcoeff = sqrt(mass_unit*mu2*kc2/hbarc)*a*rmatrix(c,cprime);
           sum += -1.0*sumcoeff*umatrix(cprime,entrance_channel)*opval2;
           if(cprime == entrance_channel)
             sum += sumcoeff*ipval2;
         }
         wfvalue = coeff*sum*whittaker(-1.0*etac, c1->getL()+0.5,2*kc*r);
       }
-      file << ", " << std::real(wfvalue);
+      wfvalue *= nrmlz;
+      file << ", " << std::norm(wfvalue);
     }
     file << std::endl;
   
