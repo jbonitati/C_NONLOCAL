@@ -68,7 +68,7 @@ void System::cmatrixCalc(){
           double ri = a*xi;
           
           TLmatrix(i,i) = TLcoeff*((4*N*N+4*N+3)*xi*(1-xi)-6*xi+1)/
-            (3*a*a*xi*xi*(1-xi)*(1-xi)) - energy;
+            (3*a*a*xi*xi*(1-xi)*(1-xi)) - c1->getB() - energy;
           Vmatrix(i,i) = c1->central_potential(ri) 
             + c1->getE()
             + pot.totalPotential(ri, targ, c1)
@@ -81,7 +81,7 @@ void System::cmatrixCalc(){
               TLmatrix(i,j)=TLcoeff 
               * pow(-1,i+j)/(a*a*sqrt(xi*xj*(1-xi)*(1-xj)))
               * (N*N + N + 1 + (xi+xj-2*xi*xj) / ((xi-xj)*(xi-xj)) 
-                - 1.0/(1-xi) - 1.0/(1-xj));
+                - 1.0/(1-xi) - 1.0/(1-xj)) - c1->getB();
               TLmatrix(j,i)=TLmatrix(i,j);
             }
             
@@ -174,6 +174,8 @@ void System::umatrixCalc(){
   umatrix = (arma::inv(zomatrix)*zimatrix);
 }
 
+//whittaker function
+//used in calculating the wave function
 double whittaker(double k, double m, double z){
   double coeff = exp(-1.0*z/2)*pow(z,m+0.5);
   return coeff * gsl_sf_hyperg_U(0.5+m-k, 1+2*m, z);
@@ -183,7 +185,6 @@ double whittaker(double k, double m, double z){
 //takes the C and U matrices and stores the wavefunction values for each
 //channel in the specified file
 void System::waveFunction(boost::filesystem::ofstream& file){
-  
   
   file << "r";
   for(unsigned int i = 1; i <= channels.size(); i++){
@@ -195,7 +196,7 @@ void System::waveFunction(boost::filesystem::ofstream& file){
   for(r = 0; r < a && r <= r_max; r += step_size){    
     file << r;
     for(unsigned int c = 0; c < channels.size(); c++){
-      Channel * c1 = &channels[c];
+      //Channel * c1 = &channels[c];
       
       //compute partial wave function u^int_c(c0)(r)
       //sum contains the coefficient calculated over all open channels
@@ -228,7 +229,7 @@ void System::waveFunction(boost::filesystem::ofstream& file){
         
       }
       sum *= nrmlz;
-      file << ", " << std::norm(sum);
+      file << ", " << std::real(sum);
     }
     file << std::endl;
   }
@@ -242,10 +243,11 @@ void System::waveFunction(boost::filesystem::ofstream& file){
       double kc = c1->getKc(energy);
       double vc = c1->getVc(energy);
       double etac = c1->getEta(energy, targ, proj);
+      double mu = c1->getMu();
       c1->io_coulomb_functions(kc*r, energy, targ, proj, 
         &ival, &oval, &ipval, &opval);
       arma::cx_double wfvalue;
-      if(energy > c1->getE()){
+      if(energy >= c1->getE()){
         
         double coeff = 1.0/sqrt(vc);
         wfvalue = -1.0 *coeff*umatrix(c, entrance_channel)*oval;
@@ -259,10 +261,10 @@ void System::waveFunction(boost::filesystem::ofstream& file){
           Channel * c2 = &channels[cprime];
           arma::cx_double oval2, ival2, opval2, ipval2;
           double kc2 = c2->getKc(energy);
-          double mu2 = c2->getMu();
-          c2->io_coulomb_functions(kc*r, energy, targ, proj, 
+          //double mu2 = c2->getMu();
+          c2->io_coulomb_functions(kc2*a, energy, targ, proj, 
             &ival2, &oval2, &ipval2, &opval2);
-          arma::cx_double sumcoeff = sqrt(mass_unit*mu2*kc2/hbarc)*a*rmatrix(c,cprime);
+          arma::cx_double sumcoeff = sqrt(mass_unit*mu*kc2/hbarc)*a*rmatrix(c,cprime);
           sum += -1.0*sumcoeff*umatrix(cprime,entrance_channel)*opval2;
           if(cprime == entrance_channel)
             sum += sumcoeff*ipval2;
@@ -270,7 +272,7 @@ void System::waveFunction(boost::filesystem::ofstream& file){
         wfvalue = coeff*sum*whittaker(-1.0*etac, c1->getL()+0.5,2*kc*r);
       }
       wfvalue *= nrmlz;
-      file << ", " << std::norm(wfvalue);
+      file << ", " << std::real(wfvalue);
     }
     file << std::endl;
   

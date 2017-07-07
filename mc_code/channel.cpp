@@ -22,10 +22,7 @@ double Channel::central_potential(double R)const
 // the total energy of the system
 //units: fm^{-1}
 double Channel::getKc(double energy)const{
-  if(energy > E)
-   return sqrt(2*mu*mass_unit*(energy - E)) / hbarc;
-  else
-   return sqrt(2*mu*mass_unit*(E - energy)) / hbarc;
+  return sqrt(2*mu*mass_unit*std::abs(energy - E)) / hbarc;
 }
 
 //returns the relative velocity of the channel with respect to 
