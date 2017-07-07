@@ -19,8 +19,8 @@ System::System(const double a_size, double e,
   a(a_size), energy(e), proj(m1, z1), targ(m2, z2), 
   entrance_channel(c0), channels(c),
   pot(op), nlpot(nlop), basis_size(b_size), step_size(step), r_max(max),
-  lagrangeBasis(basis_size, a_size), cmatrix(c.size(), c.size()),
-  invcmatrix(c.size(), c.size()), rmatrix(c.size(), c.size()), 
+  lagrangeBasis(basis_size, a_size), cmatrix(c.size()*basis_size, c.size()*basis_size),
+  invcmatrix(c.size()*basis_size, c.size()*basis_size), rmatrix(c.size(), c.size()), 
   umatrix(c.size(),c.size()), coupling_matrix(coupling)
 { 
   std::cout << "Calculating C matrix..." << std::endl;
@@ -89,7 +89,7 @@ void System::cmatrixCalc(){
               * nlpot.totalPotential(ri, rj, targ, c1);
           }
         }
-        cmatrix(c,cprime) = TLmatrix + Vmatrix;
+        cmatrix.submat(c*N, cprime*N, (c+1)*N-1, (cprime+1)*N-1) = TLmatrix + Vmatrix;
         
       }else{
         //only include coupling potential for different channels
@@ -105,18 +105,18 @@ void System::cmatrixCalc(){
               *couplingPotential(ri,rj,c,cprime);
           }
         }
-        cmatrix(c,cprime) = Vmatrix;
+        cmatrix.submat(c*N, cprime*N, (c+1)*N-1, (cprime+1)*N-1) = Vmatrix;
       }
     }
   }
   std::cout << "Calculating inverse C matrix..." << std::endl;
   //std::cout << arma::inv(arma::real(cmatrix(0,1))) << std::endl;
   //now create inverted C matrix
-  for(unsigned int i = 0; i < channels.size(); i++){
-    for(unsigned int j = 0; j < channels.size(); j++){
-      invcmatrix(i,j) = arma::inv(cmatrix(i,j));
-    }
-  }
+  //for(unsigned int i = 0; i < channels.size(); i++){
+  //  for(unsigned int j = 0; j < channels.size(); j++){
+      invcmatrix = arma::inv(cmatrix);
+  //  }
+  //}
 }
 
 
@@ -126,7 +126,8 @@ void System::rmatrixCalc(){
     Channel * c1 = &channels[c];
     for(unsigned int cprime = 0; cprime < channels.size(); cprime++){
       Channel * c2 = &channels[cprime];
-      arma::cx_mat cinv = invcmatrix(c,cprime);
+      arma::cx_mat cinv = invcmatrix.submat(c*basis_size,cprime*basis_size,
+        (c+1)*basis_size-1, (cprime+1)*basis_size-1);
       
       double coeff = hbarc*hbarc / (2*a*mass_unit*sqrt(c1->getMu() * c2->getMu()));
       
@@ -221,7 +222,7 @@ void System::waveFunction(boost::filesystem::ofstream& file){
         for(int i = 0; i < basis_size; i++){
           for(int j = 0; j < basis_size; j++){
             innersum += lagrangeBasis.phi(i+1,r)
-              *invcmatrix(c,cprime)(i,j)
+              *invcmatrix((c+1)*i, (cprime+1)*j)
               *lagrangeBasis.phi(j+1,a);
           }
         }

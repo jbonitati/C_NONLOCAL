@@ -36,8 +36,8 @@ class System{
     
     double beta; //coupling constant
     
-    matrix<arma::cx_mat> cmatrix; //C and its inverse are matrices of matrices
-    matrix<arma::cx_mat> invcmatrix;
+    arma::cx_mat cmatrix; //C and its inverse are matrices of matrices
+    arma::cx_mat invcmatrix;
     arma::cx_mat rmatrix;
     arma::cx_mat umatrix;
     
