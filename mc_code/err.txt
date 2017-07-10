@@ -1,1 +1,2 @@
-make: Nothing to be done for 'all'.
+g++ -Wall -g   -c -o system.o system.cpp
+g++ -Wall -g  -o run  ./system.o  ./channel.o  ./potential.o  ./lagbasis.o  ./particle.o  ./OpticalPotential.o  ./multichannel.o -lgsl -lgslcblas -larmadillo -lboost_system

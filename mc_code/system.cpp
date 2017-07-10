@@ -3,6 +3,8 @@
 #include <fstream>
 #include "system.h"
 #include <iostream>
+#include <vector>
+#include "wavefunction.h"
 
 const double hbarc = 197.3269718; //MeV * fm
 const double mass_unit=931.494; //MeV / c^2
@@ -193,9 +195,15 @@ void System::waveFunction(boost::filesystem::ofstream& file){
   }
   file << std::endl;
   
+  std::vector<WaveFunction> wfvalues;
+  wfvalues.reserve(std::floor(r_max / step_size) + 1);
+  
   double r;
-  for(r = 0; r < a && r <= r_max; r += step_size){    
-    file << r;
+  std::cout << 0;
+  for(r = 0; r < a && r <= r_max; r += step_size){ 
+    std::cout << "\rradius: " << r << std::flush;   
+    //file << r;
+    WaveFunction wf(r);
     for(unsigned int c = 0; c < channels.size(); c++){
       //Channel * c1 = &channels[c];
       
@@ -230,14 +238,17 @@ void System::waveFunction(boost::filesystem::ofstream& file){
         
       }
       sum *= nrmlz;
-      file << ", " << std::real(sum);
+      //file << ", " << std::real(sum);
+      wf.add(std::real(sum));
     }
-    file << std::endl;
+    wfvalues.push_back(wf);
   }
   
   //now print the external wave function
   while(r <= r_max){
-   file << r;
+    std::cout << "\rradius: " << r << std::flush;
+   //file << r;
+   WaveFunction wf(r);
    for(unsigned int c = 0; c < channels.size(); c++){
       arma::cx_double oval, ival, opval, ipval;
       Channel * c1 = &channels[c];
@@ -273,12 +284,18 @@ void System::waveFunction(boost::filesystem::ofstream& file){
         wfvalue = coeff*sum*whittaker(-1.0*etac, c1->getL()+0.5,2*kc*r);
       }
       wfvalue *= nrmlz;
-      file << ", " << std::real(wfvalue);
+      //file << ", " << std::real(wfvalue);
+      wf.add(std::real(wfvalue));
     }
-    file << std::endl;
+    wfvalues.push_back(wf);
   
    r += step_size; 
   }
+  std::cout << std::endl;
+  std::cout << "Printing Wave functions to file..." << std::endl;
+  
+  for(std::vector<WaveFunction>::iterator it = wfvalues.begin(); it != wfvalues.end(); it++)
+    file << (*it);
   
   std::cout << "done" << std::endl;
 }
