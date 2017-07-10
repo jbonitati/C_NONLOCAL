@@ -5,13 +5,16 @@
 #include <iostream>
 #include <vector>
 #include "wavefunction.h"
+#include <complex>
+
+using namespace boost::numeric::ublas;
+using namespace arma; //cx_double
 
 const double hbarc = 197.3269718; //MeV * fm
 const double mass_unit=931.494; //MeV / c^2
-const arma::cx_double I(0.0,1.0);
-const arma::cx_double nrmlz = I/2.0;//normalization constant
+const cx_double I(0.0,1.0);
+const cx_double nrmlz = I/2.0;//normalization constant
 
-using namespace boost::numeric::ublas;
 
 System::System(const double a_size, double e,
   const double m1, const double m2, const double z1, const double z2,
@@ -133,7 +136,7 @@ void System::rmatrixCalc(){
       
       double coeff = hbarc*hbarc / (2*a*mass_unit*sqrt(c1->getMu() * c2->getMu()));
       
-      arma::cx_double expansion = 0;
+      cx_double expansion = 0;
       for(int i = 0; i < basis_size; i++){
         for(int j = 0; j < basis_size; j++){
           expansion += lagrangeBasis.phi(i+1,a)*cinv(i,j)*lagrangeBasis.phi(j+1,a);
@@ -150,7 +153,7 @@ void System::rmatrixCalc(){
 void System::umatrixCalc(){
   arma::cx_mat zimatrix(channels.size(),channels.size());
   arma::cx_mat zomatrix(channels.size(),channels.size());
-  arma::cx_double ovalue, ivalue, opvalue, ipvalue, ovalue2, ivalue2, opvalue2, ipvalue2;
+  cx_double ovalue, ivalue, opvalue, ipvalue, ovalue2, ivalue2, opvalue2, ipvalue2;
   
   for(unsigned int c = 0; c < channels.size(); c++){
     Channel * c1 = &channels[c];
@@ -161,7 +164,7 @@ void System::umatrixCalc(){
     for(unsigned int cprime = 0; cprime < channels.size(); cprime++){
       Channel * c2 = &channels[cprime];
       double kc2 = c2->getKc(energy);
-      arma::cx_double coeff = nrmlz*1.0 / (sqrt(kc2*a)); 
+      cx_double coeff = nrmlz*1.0 / (sqrt(kc2*a)); 
       
       c2->io_coulomb_functions(kc2*a, energy, targ, proj, 
         &ivalue2, &ovalue2, &ipvalue2, &opvalue2);
@@ -209,8 +212,8 @@ void System::waveFunction(boost::filesystem::ofstream& file){
       
       //compute partial wave function u^int_c(c0)(r)
       //sum contains the coefficient calculated over all open channels
-      arma::cx_double sum = 0;
-      arma::cx_double oval, ival, opval, ipval;
+      cx_double sum = 0;
+      cx_double oval, ival, opval, ipval;
       
       for(unsigned int cprime = 0; cprime < channels.size(); cprime++){
         Channel * c2 = &channels[cprime];
@@ -221,19 +224,24 @@ void System::waveFunction(boost::filesystem::ofstream& file){
         c2->io_coulomb_functions(kc*a, energy, targ, proj, 
           &ival, &oval, &ipval, &opval);
         double coeff = hbarc*hbarc*kc/(2*mass_unit*mu*sqrt(vc));
-        arma::cx_double outersum = 
+        cx_double outersum = 
           -1.0 *coeff*umatrix(cprime, entrance_channel)*opval;
         if(cprime == entrance_channel)
           outersum += coeff*ipval;
         
-        arma::cx_double innersum = 0;
-        for(int i = 0; i < basis_size; i++){
+        cx_double innersum = 0;
+        arma::rowvec phir = lagrangeBasis.get_phi_r(r);
+        arma::cx_mat cinv = invcmatrix.submat(c*basis_size, cprime*basis_size, 
+            (c+1)*basis_size - 1, (cprime + 1)*basis_size - 1);
+        arma::colvec phia = lagrangeBasis.get_phi_a();
+        innersum = arma::dot(phir,cinv*phia);
+        /*for(int i = 0; i < basis_size; i++){
           for(int j = 0; j < basis_size; j++){
             innersum += lagrangeBasis.phi(i+1,r)
               *invcmatrix(c*basis_size + i, cprime*basis_size + j)
               *lagrangeBasis.phi(j+1,a);
           }
-        }
+        }*/
         sum += outersum*innersum;
         
       }
@@ -250,7 +258,7 @@ void System::waveFunction(boost::filesystem::ofstream& file){
    //file << r;
    WaveFunction wf(r);
    for(unsigned int c = 0; c < channels.size(); c++){
-      arma::cx_double oval, ival, opval, ipval;
+      cx_double oval, ival, opval, ipval;
       Channel * c1 = &channels[c];
       double kc = c1->getKc(energy);
       double vc = c1->getVc(energy);
@@ -258,7 +266,7 @@ void System::waveFunction(boost::filesystem::ofstream& file){
       double mu = c1->getMu();
       c1->io_coulomb_functions(kc*r, energy, targ, proj, 
         &ival, &oval, &ipval, &opval);
-      arma::cx_double wfvalue;
+      cx_double wfvalue;
       if(energy >= c1->getE()){
         
         double coeff = 1.0/sqrt(vc);
@@ -268,15 +276,15 @@ void System::waveFunction(boost::filesystem::ofstream& file){
           
       }else{
         double coeff = 1.0/whittaker(-1.0*etac, c1->getL() + 0.5, 2*kc*a);
-        arma::cx_double sum = 0;
+        cx_double sum = 0;
         for(unsigned int cprime = 0; cprime < channels.size();cprime++){
           Channel * c2 = &channels[cprime];
-          arma::cx_double oval2, ival2, opval2, ipval2;
+          cx_double oval2, ival2, opval2, ipval2;
           double kc2 = c2->getKc(energy);
           //double mu2 = c2->getMu();
           c2->io_coulomb_functions(kc2*a, energy, targ, proj, 
             &ival2, &oval2, &ipval2, &opval2);
-          arma::cx_double sumcoeff = sqrt(mass_unit*mu*kc2/hbarc)*a*rmatrix(c,cprime);
+          cx_double sumcoeff = sqrt(mass_unit*mu*kc2/hbarc)*a*rmatrix(c,cprime);
           sum += -1.0*sumcoeff*umatrix(cprime,entrance_channel)*opval2;
           if(cprime == entrance_channel)
             sum += sumcoeff*ipval2;

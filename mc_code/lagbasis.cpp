@@ -48,12 +48,24 @@ double LagBasis::phi(int i, double r)const{
 
 }
 
+//returns a row vector conatining the basis functions evaluated at r
+arma::rowvec LagBasis::get_phi_r(double r)const{
+  arma::rowvec phi_r(size);
+  for(int i = 0; i < size; i++){
+    phi_r(i) = phi(i+1,r);
+  }
+  return phi_r;
+}
+
 //Lagrange Basis constructor
 //precomputes all necessary values of the first n basis functions
-LagBasis::LagBasis(int n, double a_): size(n), a(a_){
+LagBasis::LagBasis(int n, double a_): size(n), a(a_), phi_a(n){
   weights = new double[n];
   xi = new double[n];
   std::cout << "Precomputing basis functions..." << std::endl;
   gauleg(-1,1,n);
+  for(int i = 0; i < n; i++){
+    phi_a(i) = phi(i+1,a);
+  }
 }
 
