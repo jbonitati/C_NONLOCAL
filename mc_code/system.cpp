@@ -230,7 +230,7 @@ void System::waveFunction(boost::filesystem::ofstream& file){
         for(int i = 0; i < basis_size; i++){
           for(int j = 0; j < basis_size; j++){
             innersum += lagrangeBasis.phi(i+1,r)
-              *invcmatrix((c+1)*i, (cprime+1)*j)
+              *invcmatrix(c*basis_size + i, cprime*basis_size + j)
               *lagrangeBasis.phi(j+1,a);
           }
         }
