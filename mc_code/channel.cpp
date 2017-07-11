@@ -61,4 +61,3 @@ void Channel::io_coulomb_functions(double x, double energy, Particle targ, Parti
   //removed factor of "q" from the derivatives
   
 }
-

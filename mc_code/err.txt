@@ -1,30 +1,16 @@
 g++ -Wall -g   -c -o system.o system.cpp
-system.cpp: In member function 'void System::waveFunction(boost::filesystem::ofstream&)':
-system.cpp:233:18: error: no match for 'operator=' (operand types are 'arma::cx_double {aka std::complex<double>}' and 'arma::enable_if2<true, const arma::mtGlue<std::complex<double>, arma::mtGlue<std::complex<double>, arma::Row<double>, arma::subview<std::complex<double> >, arma::glue_mixed_times>, arma::Col<double>, arma::glue_mixed_times> >::result {aka const arma::mtGlue<std::complex<double>, arma::mtGlue<std::complex<double>, arma::Row<double>, arma::subview<std::complex<double> >, arma::glue_mixed_times>, arma::Col<double>, arma::glue_mixed_times>}')
-         innersum = lagrangeBasis.get_phi_r(r)
-                  ^
-In file included from /usr/include/armadillo:29:0,
-                 from channel.h:2,
-                 from system.h:1,
-                 from system.cpp:4:
-/usr/include/c++/5/complex:1252:7: note: candidate: std::complex<double>& std::complex<double>::operator=(double)
-       operator=(double __d)
+system.cpp:20:1: error: prototype for 'System::System(double, double, double, double, double, double, int, std::vector<Channel>, OpticalPotential, NonLocalOpticalPotential, int, double, double, boost::numeric::ublas::matrix<CouplingPotential>&)' does not match any in class 'System'
+ System::System(const double a_size, double e,
+ ^
+In file included from system.cpp:4:0:
+system.h:18:7: error: candidates are: System::System(const System&)
+ class System{
        ^
-/usr/include/c++/5/complex:1252:7: note:   no known conversion for argument 1 from 'arma::enable_if2<true, const arma::mtGlue<std::complex<double>, arma::mtGlue<std::complex<double>, arma::Row<double>, arma::subview<std::complex<double> >, arma::glue_mixed_times>, arma::Col<double>, arma::glue_mixed_times> >::result {aka const arma::mtGlue<std::complex<double>, arma::mtGlue<std::complex<double>, arma::Row<double>, arma::subview<std::complex<double> >, arma::glue_mixed_times>, arma::Col<double>, arma::glue_mixed_times>}' to 'double'
-/usr/include/c++/5/complex:1291:9: note: candidate: template<class _Tp> std::complex<double>& std::complex<double>::operator=(const std::complex<_Tp>&)
-         operator=(const complex<_Tp>& __z)
-         ^
-/usr/include/c++/5/complex:1291:9: note:   template argument deduction/substitution failed:
-system.cpp:233:18: note:   'arma::enable_if2<true, const arma::mtGlue<std::complex<double>, arma::mtGlue<std::complex<double>, arma::Row<double>, arma::subview<std::complex<double> >, arma::glue_mixed_times>, arma::Col<double>, arma::glue_mixed_times> >::result {aka const arma::mtGlue<std::complex<double>, arma::mtGlue<std::complex<double>, arma::Row<double>, arma::subview<std::complex<double> >, arma::glue_mixed_times>, arma::Col<double>, arma::glue_mixed_times>}' is not derived from 'const std::complex<_Tp>'
-         innersum = lagrangeBasis.get_phi_r(r)
-                  ^
-In file included from /usr/include/armadillo:29:0,
-                 from channel.h:2,
-                 from system.h:1,
-                 from system.cpp:4:
-/usr/include/c++/5/complex:1197:12: note: candidate: std::complex<double>& std::complex<double>::operator=(const std::complex<double>&)
-     struct complex<double>
-            ^
-/usr/include/c++/5/complex:1197:12: note:   no known conversion for argument 1 from 'arma::enable_if2<true, const arma::mtGlue<std::complex<double>, arma::mtGlue<std::complex<double>, arma::Row<double>, arma::subview<std::complex<double> >, arma::glue_mixed_times>, arma::Col<double>, arma::glue_mixed_times> >::result {aka const arma::mtGlue<std::complex<double>, arma::mtGlue<std::complex<double>, arma::Row<double>, arma::subview<std::complex<double> >, arma::glue_mixed_times>, arma::Col<double>, arma::glue_mixed_times>}' to 'const std::complex<double>&'
+system.h:58:5: error:                 System::System(double, double, double, double, double, double, int, std::vector<Channel>, OpticalPotential, NonLocalOpticalPotential, int, double, double, boost::numeric::ublas::matrix<CouplingPotential>)
+     System(const double a_size, double e,
+     ^
+system.h:52:5: error:                 System::System()
+     System(); //explicitly disallow default constructor
+     ^
 <builtin>: recipe for target 'system.o' failed
 make: *** [system.o] Error 1

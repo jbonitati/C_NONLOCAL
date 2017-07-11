@@ -6,6 +6,7 @@
 #include <vector>
 #include "wavefunction.h"
 #include <complex>
+#include "potential.h"
 
 using namespace boost::numeric::ublas;
 using namespace arma; //cx_double
@@ -20,14 +21,15 @@ System::System(const double a_size, double e,
   const double m1, const double m2, const double z1, const double z2,
   int c0, std::vector<Channel> c,
   OpticalPotential op, NonLocalOpticalPotential nlop, int b_size,
-  double step, double max, matrix<Coupling_Potential> coupling): 
+  double step, double max, matrix<CouplingPotential> coupling): 
   a(a_size), energy(e), proj(m1, z1), targ(m2, z2), 
   entrance_channel(c0), channels(c),
   pot(op), nlpot(nlop), basis_size(b_size), step_size(step), r_max(max),
   lagrangeBasis(basis_size, a_size), cmatrix(c.size()*basis_size, c.size()*basis_size),
   invcmatrix(c.size()*basis_size, c.size()*basis_size), rmatrix(c.size(), c.size()), 
   umatrix(c.size(),c.size()), coupling_matrix(coupling)
-{ 
+{
+
   std::cout << "Calculating C matrix..." << std::endl;
   //calculate C matrix and inverse C matrix
   cmatrixCalc();

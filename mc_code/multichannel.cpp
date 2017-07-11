@@ -109,23 +109,7 @@ void loadSystem(){
 
   double beta=pt.get<double>("Non_local.beta");
   
-  matrix<Coupling_Potential> cpmat(num_channels, num_channels);
-  for(int i = 1; i <= num_channels; i++){
-    cpmat(i-1,i-1) = Coupling_Potential();
-    for(int j = i+1; j <= num_channels; j++){
-      std::string cp = "coupling" 
-        + boost::lexical_cast<std::string>(i)
-        + boost::lexical_cast<std::string>(j);
-      cpmat(i-1,j-1) = Coupling_Potential(pt.get<double>(cp + ".V"), 
-        pt.get<double>(cp+".r"),
-        pt.get<double>(cp+".a"),
-        pt.get<double>(cp+".beta"),
-        beta);
-      cpmat(j-1,i-1) = cpmat(i-1,j-1);
-    
-    }
-  }
-  
+  //read in the info about each channel
   std::vector<Channel> channels;
   channels.reserve(num_channels);
   double mu = m1*m2/ (m1+m2);
@@ -141,6 +125,26 @@ void loadSystem(){
     std::cerr << "\nError reading channel values. Make sure all channels are specified in config" << std::endl << std::endl;
     throw;
   }
+  
+  //read in the info about the coupling between each channel
+  matrix<CouplingPotential> cpmat(num_channels, num_channels);
+  for(int i = 0; i < num_channels; i++){
+    cpmat(i,i) = CouplingPotential();
+    for(int j = i+1; j < num_channels; j++){
+      std::string cp = "coupling" 
+        + boost::lexical_cast<std::string>(i+1)
+        + boost::lexical_cast<std::string>(j+1);
+      CouplingPotential cpot(pt.get<double>(cp + ".V"), 
+        pt.get<double>(cp+".r"),
+        pt.get<double>(cp+".a"),
+        pt.get<double>(cp+".beta"),
+        beta);
+      cpmat(i,j) = (cpot);
+      cpmat(j,i) = (cpot);
+    
+    }
+  }
+  
   
   NonLocalOpticalPotential nlop(V_Potential(Vv1, rv1, av1), 
     V_Potential(Wv1, rwv1, awv1),

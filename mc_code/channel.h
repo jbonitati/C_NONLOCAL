@@ -1,6 +1,7 @@
+#pragma once
 #include "particle.h"
 #include <armadillo>
-#pragma once
+#include <vector>
 
 class Channel{
   private:
@@ -15,6 +16,7 @@ class Channel{
     Channel(const double energy, const int l_, const double j_,
     const double mu_):
       E(energy), l(l_), j(j_), m(j_ - l_), mu(mu_), b(0){ }
+    ~Channel(){ }
     
     double getE()const{return E;}
     int getL()const{return l;}

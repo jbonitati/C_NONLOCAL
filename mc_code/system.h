@@ -41,7 +41,7 @@ class System{
     arma::cx_mat rmatrix;
     arma::cx_mat umatrix;
     
-    matrix<Coupling_Potential> coupling_matrix;
+    matrix<CouplingPotential> coupling_matrix;
     
     void cmatrixCalc();
     void rmatrixCalc();
@@ -59,7 +59,7 @@ class System{
       const double m1, const double m2, const double z1, const double z2,
       int c0, std::vector<Channel> channels_,
       OpticalPotential op, NonLocalOpticalPotential nlop, int basis_size,
-      double step, double max, matrix<Coupling_Potential> coupling);
+      double step, double max,matrix<CouplingPotential> coupling);
     
     void waveFunction(boost::filesystem::ofstream& outFile);
 };
