@@ -72,6 +72,8 @@ double integration(int l, double mu)
 }
 arma::cx_double NonLocalOpticalPotential::totalPotential
 (double r1, double r2, Particle p, Channel  * c) const{
+  if(beta == 0) return 0;
+  
   double ravg = (r1+r2)/2.0;
   int l = c->getL();
   
@@ -95,7 +97,7 @@ arma::cx_double NonLocalOpticalPotential::totalPotential
     kl=c_n*approx_bessel;
     
     double exponent=(pow(r1,2.0)+pow(r2,2.0))/(beta*beta);
-    nonlocal_part= kl * 1.0/(beta*pow(PI,1.0/2.0))*(exp(-1*exponent));
+    nonlocal_part= kl * 1.0/(beta*pow(PI,0.5))*(exp(-1*exponent));
   }
     
   return local_part * nonlocal_part;

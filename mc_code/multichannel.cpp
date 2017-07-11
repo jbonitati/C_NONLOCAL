@@ -109,17 +109,20 @@ void loadSystem(){
 
   double beta=pt.get<double>("Non_local.beta");
   
+  Particle proj(m1,z1), targ(m2,z2);
+  
   //read in the info about each channel
   std::vector<Channel> channels;
   channels.reserve(num_channels);
   double mu = m1*m2/ (m1+m2);
   try{
+    
     for(int i = 1; i <= num_channels; i++){
       channels.push_back(Channel(
         pt.get<double>("Channel" + boost::lexical_cast<std::string>(i) + ".Energy"), 
         pt.get<int>("Channel" + boost::lexical_cast<std::string>(i) + ".Angular_momentum"), 
         pt.get<double>("Channel" + boost::lexical_cast<std::string>(i) + ".Total_angular_momentum"),
-        mu));
+        mu, E, a_size, targ, proj));
     }
   }catch(...){
     std::cerr << "\nError reading channel values. Make sure all channels are specified in config" << std::endl << std::endl;
@@ -151,7 +154,7 @@ void loadSystem(){
     D_Potential(Vd1, rvd1, avd1), D_Potential(Wd1,rwd1,awd1),
     SO_Potential(Vso1, Rso1, aso1), SO_Potential(Wso1, Rwso1, awso1), beta);
     
-  mySystem = new System(a_size, E, m1, m2, z1, z2, 
+  mySystem = new System(a_size, E, proj, targ, 
     c0, channels, op, nlop, NN, Nr, R_max, cpmat);
 }
 
@@ -169,6 +172,8 @@ int main()
   mySystem->waveFunction(outfile);
   
   outfile.close();
+  
+  std::cout << "done" << std::endl;
   
   return 0;
 }

@@ -49,14 +49,14 @@ class System{
     
     double couplingPotential(double r1, double r2, int c1, int c2);
     
-    System(); //explicitly disallow default constructor
+    System(); //explicitly disallow default constructor (Meyers item 6)
   public:
     ~System(){
       channels.clear();
     }
     
     System(const double a_size, double e,
-      const double m1, const double m2, const double z1, const double z2,
+      Particle projectile, Particle target,
       int c0, std::vector<Channel> channels_,
       OpticalPotential op, NonLocalOpticalPotential nlop, int basis_size,
       double step, double max,matrix<CouplingPotential> coupling);

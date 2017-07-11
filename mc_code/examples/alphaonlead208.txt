@@ -9,14 +9,14 @@ entrance_channel = 1
 
 [Numerical]
  
-Projectile_mass_number =1
-Target_mass_number =11
+Projectile_mass_number =4
+Target_mass_number =208
 
-Projectile_proton_number = 0
-Target_proton_number = 6
+Projectile_proton_number = 2
+Target_proton_number =82
 
 ;E (MeV)
-Projectile_energy = 0.51
+Projectile_energy = 50
 
 Basis_size = 60
 Step_size = 0.01
@@ -29,14 +29,14 @@ Channel_radius = 16
 ;and copy and paste the following Channel sections, changing the number
 ;in each name
 [Channel1]
-Angular_momentum = 0
-Total_angular_momentum = 0.5
-Energy = 0.5
+Angular_momentum = 20
+Total_angular_momentum = 20
+Energy = 0
 
 [Channel2]
-Angular_momentum = 1
-Total_angular_momentum = 0.5
-Energy = 0.18
+Angular_momentum = 10
+Total_angular_momentum = 10
+Energy = 20
 
 ;coupling constants
 [coupling12]
@@ -46,11 +46,11 @@ r = 2.483
 a = .25
 
 [local]
-Vv = 53.28
+Vv = 100
 rv = 8.363
 av = .5803
 
-Wv = 0
+Wv = 10
 rwv = 8.363
 awv = .5803
 
@@ -63,7 +63,7 @@ Wd = 0
 rwd = 1.25
 awd = 0.25
 
-Vso = 13.44
+Vso = 0
 Rso = 2.483
 aso = 0.25
 
@@ -74,8 +74,8 @@ awso = 0.25
 
 
 [Non_local]
-;beta = range of nonlocality (0 if using local potential only)
-beta = 0
+;beta = range of nonlocality
+beta = 0.85
 
 Vv = 0
 rv = 1.25
