@@ -1,8 +1,6 @@
 #include <cmath>
 #include "potential.h"
-
-
-const double hbarc = 197.3269718; //MeV * fm
+#include "constants.h"
 
 double V_Potential::getValue(double R, Particle p)const{
   double Rr = r*pow(p.getM(),1.0/3.0);

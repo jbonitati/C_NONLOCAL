@@ -8,6 +8,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import sys
 import time
+from shutil import copyfile
 
 data = pd.DataFrame.from_csv(sys.argv[1], index_col=0)
 data.plot(subplots=True)
@@ -15,10 +16,14 @@ plt.xlabel('r (fm)')
 plt.ylabel('u(r)')
 plt.title('Wave Functions')
 if(len(sys.argv) >= 3):
-  plt.savefig("figures/%s.png"%sys.argv[2],bbox_inches='tight')
-  print "Plot saved to figures/%s.png"%sys.argv[2]
+  name = sys.argv[2]
+  plt.savefig("figures/%s.png"%name,bbox_inches='tight')
+  #copyfile("../config.ini", "inifiles/%s.ini"%name)
+  print "Plot saved to figures/%s.png"%name
 else:
-  plt.savefig("figures/%f.png"%time.time(), bbox_inches='tight')
-  print "Plot saved to figures/%f.png"%time.time()
+  name = time.time()
+  plt.savefig("figures/%f.png"%time, bbox_inches='tight')
+  #copyfile("../config.ini", "inifiles/%f.ini"%time)
+  print "Plot saved to figures/%f.png"%time
 plt.show()
 

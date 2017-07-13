@@ -17,13 +17,7 @@ class Channel{
     
   public:
     Channel(const double ec, const int l_, const double j_,
-    const double mu_, double energy_, double a, Particle targ, Particle proj):
-      E(ec), l(l_), j(j_), m(j_ - l_), mu(mu_), b(0), energy(energy_){ 
-      if(energy < ec){
-        double kc = getKc();
-        b = 2*kc*a*whittaker_prime(2*kc*a, targ, proj)/whittaker(2*kc*a, targ, proj);
-      }
-    }
+    const double mu_, double energy_, double a, Particle targ, Particle proj);
     ~Channel(){ }
     
     double getE()const{return E;}
@@ -42,4 +36,6 @@ class Channel{
     double whittaker(double x, Particle targ, Particle proj);
     double whittaker_prime(double x, Particle targ, Particle proj);  
     
+    
+    void coulomb_test(double, Particle, Particle)const;
 };

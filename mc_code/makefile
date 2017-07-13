@@ -13,4 +13,4 @@ $(appname): $(objects)
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $(appname) $(objects) $(LDLIBS)
 
 clean:
-	$(RM) *.o *~
+	$(RM) *.o

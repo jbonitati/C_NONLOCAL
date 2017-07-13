@@ -7,14 +7,10 @@
 #include "wavefunction.h"
 #include <complex>
 #include "potential.h"
+#include "constants.h"
 
 using namespace boost::numeric::ublas;
 using namespace arma; //cx_double
-
-const double hbarc = 197.3269718; //MeV * fm
-const double mass_unit=931.494; //MeV / c^2
-const cx_double I(0.0,1.0);
-const cx_double nrmlz = I/2.0;//normalization constant
 
 
 System::System(const double a_size, double e,
@@ -29,7 +25,6 @@ System::System(const double a_size, double e,
   invcmatrix(c.size()*basis_size, c.size()*basis_size), rmatrix(c.size(), c.size()), 
   umatrix(c.size(),c.size()), coupling_matrix(coupling)
 {
-
   std::cout << "Calculating C matrix..." << std::endl;
   //calculate C matrix and inverse C matrix
   cmatrixCalc();
@@ -43,6 +38,9 @@ System::System(const double a_size, double e,
   //calculate U matrix
   umatrixCalc();
   std::cout << umatrix << std::endl;
+  
+  //std::cout << channels[0].getKc() << " " << a_size << std::endl;
+  //channels[0].coulomb_test(channels[0].getKc()*a_size, targ, proj);
 }
 
 
@@ -166,6 +164,7 @@ void System::umatrixCalc(){
       c2->io_coulomb_functions(kc2*a, targ, proj, 
         &ivalue, &ovalue, &ipvalue, &opvalue);
       
+      //possibly remove kc2 from the following equations
       zomatrix(c,cprime) = coeff*(-1*kc2*a*rmatrix(c,cprime)*opvalue);
       zimatrix(c,cprime) = coeff*(-1*kc2*a*rmatrix(c,cprime)*ipvalue);
       if(c == cprime){
@@ -206,11 +205,22 @@ void System::waveFunction(boost::filesystem::ofstream& file){
         double mu = c2->getMu();
         c2->io_coulomb_functions(kc*a, targ, proj, 
           &ival, &oval, &ipval, &opval);
-        double coeff = hbarc*hbarc*kc/(2*mass_unit*mu*sqrt(vc));
+        
+        cx_double coeff = nrmlz*hbarc*hbarc*kc
+          /(2*mass_unit*mu*sqrt(vc));
         cx_double outersum = 
           -1.0 *coeff*umatrix(cprime, entrance_channel)*opval;
         if(cprime == entrance_channel)
           outersum += coeff*ipval;
+          
+        if(r == 0){
+          /*std::cout << "I(ka) " << ival << ", O(ka) " << oval << ", I'(ka) " << ipval << ", O'(ka) " << opval << std::endl;
+          std::cout << kc << std::endl;
+          std::cout << umatrix(cprime, entrance_channel) << std::endl;
+          std::cout << nrmlz*(ipval - umatrix(cprime, entrance_channel)*opval) << std::endl;
+          */
+          //std::cout << nrmlz*outersum << std::endl;
+        }
         
         cx_double innersum = 0;
         arma::rowvec phir = lagrangeBasis.get_phi_r(r);
@@ -228,9 +238,9 @@ void System::waveFunction(boost::filesystem::ofstream& file){
         sum += outersum*innersum;
         
       }
-      sum *= nrmlz;
+      //sum *= nrmlz;
       //file << ", " << std::real(sum);
-      wf.add(std::real(sum));
+      wf.add(std::norm(sum));
     }
     wfvalues.push_back(wf);
   }
@@ -277,7 +287,7 @@ void System::waveFunction(boost::filesystem::ofstream& file){
       }
       wfvalue *= nrmlz;
       //file << ", " << std::real(wfvalue);
-      wf.add(std::real(wfvalue));
+      wf.add(std::norm(wfvalue));
     }
     wfvalues.push_back(wf);
   

@@ -3,9 +3,7 @@
 #include "OpticalPotential.h"
 #include <gsl/gsl_integration.h>
 #include <gsl/gsl_sf.h>
-
-const arma::cx_double I(0., 1.);
-const double PI = 3.14159265359;
+#include "constants.h"
 
 arma::cx_double OpticalPotential::Volume_potential
 (double radius, Particle p)const{

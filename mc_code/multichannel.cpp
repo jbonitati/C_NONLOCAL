@@ -28,15 +28,6 @@
 #include <boost/property_tree/ini_parser.hpp>
 #include <boost/lexical_cast.hpp>
 
-
-const double hbarc = 197.3269718;
-const double mass_unit=931.494;
-const double c_constant=(pow(hbarc,2)/(2.0*mass_unit));
-const int MAX_PTS = 6000;
-const double E2HC = 0.00729927;
-const double PI = 3.14159265359;
-const std::complex<double> I(0., 1.);
-
 using namespace boost::numeric::ublas;
 
 //namespace is superior to static

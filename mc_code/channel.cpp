@@ -4,11 +4,16 @@
 #include <armadillo>
 #include "channel.h"
 #include "particle.h"
+#include "constants.h"
 
-const double hbarc = 197.3269718; //MeV * fm / c
-const double mass_unit=931.454; // MeV / c^2
-const double E2HC = 0.007297353; //e^2 / (4pi*epsilon_0) in units of hbar*c
-const arma::cx_double I(0.0,1.0);
+Channel::Channel(const double ec, const int l_, const double j_,
+  const double mu_, double energy_, double a, Particle targ, Particle proj):
+    E(ec), l(l_), j(j_), m(j_ - l_), mu(mu_), b(0), energy(energy_){ 
+    if(energy < ec){
+      double kc = getKc();
+      b = 2*kc*a*whittaker_prime(2*kc*a, targ, proj)/whittaker(2*kc*a, targ, proj);
+    }
+}
 
 /*Returns the potential due to the centrifugal term in the Hamiltonian*/
 double Channel::central_potential(double R)const
@@ -54,12 +59,30 @@ void Channel::io_coulomb_functions(double x, Particle targ, Particle proj,
   gsl_sf_result F1,G1,Fp1,Gp1;
   double exp_F1, exp_G1;
   gsl_sf_coulomb_wave_FG_e(etac,x,l,0,&F1,&Fp1,&G1,&Gp1,&exp_F1,&exp_G1);
-  *I1 = G1.val - I*F1.val;
-  *Ip1 = (Gp1.val - I*Fp1.val);
-  *O1 = G1.val + I*F1.val;
-  *Op1 = (Gp1.val + I*Fp1.val);
+  double G = G1.val*exp(exp_G1);
+  double F = F1.val*exp(exp_F1);
+  double Gp = Gp1.val*exp(exp_G1);
+  double Fp = Fp1.val*exp(exp_F1);
+  *I1 = G - I*F;
+  *Ip1 = Gp - I*Fp;
+  *O1 = G + I*F;
+  *Op1 = Gp + I*Fp;
   //removed factor of "q" from the derivatives
   
+}
+
+/*function to test the gsl coulomb functions*/
+void Channel::coulomb_test(double x, Particle targ, Particle proj)const{
+  double etac = getEta(targ,proj);
+  gsl_sf_result F1,G1,Fp1,Gp1;
+  double exp_F1, exp_G1;
+  gsl_sf_coulomb_wave_FG_e(etac,x,l,0,&F1,&Fp1,&G1,&Gp1,&exp_F1,&exp_G1);
+  double G = G1.val*exp(exp_G1);
+  double F = F1.val*exp(exp_F1);
+  double Gp = Gp1.val*exp(exp_G1);
+  double Fp = Fp1.val*exp(exp_F1);
+  std::cout << "G " << G << "\nF " << F <<  "\nG' " << Gp << "\nF' " << Fp << std::endl;
+  std::cout << exp_F1 << " " << exp_G1 << std::endl;
 }
 
 double Channel::whittaker(double k, double m, double z){
