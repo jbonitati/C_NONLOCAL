@@ -1,0 +1,67 @@
+[Numerical]
+NN = 18
+m1=1
+m2=10
+E = 3.368
+a_size = 10
+l = 0
+jj = 0.5
+n = 6
+z1 =0
+z2 =4
+B = 0 
+Nr = 0.1
+R_max =15
+
+[local]
+Vv = 53.28
+rv = 2.483
+av = 0.25
+Wv = 0
+rwv = 2.483
+awv = 0.25
+Vd = 0  
+rvd = 2.483
+avd = 0.25
+Wd = 0  
+rwd = 2.483
+awd = 0.25
+Vso = 0.0
+Rso = 2.483
+aso = 0.25
+Wso = 0
+Rwso = 2.483
+awso = 0.25
+
+[Non_local]
+beta = 0.5
+Vv1 = 0
+rv1 = 1.25
+av1 = 0.25
+Wv1 = 0
+rwv1 = 1.22
+awv1 = 0.47
+Vd1 = 0
+rvd1 = 1.25
+avd1 = 0.25
+Wd1 = 0
+rwd1 = 1.25
+awd1 = 0.25
+Vso1 = 0
+Rso1 = 1.25
+aso1 = 0.25
+Wso1 = 0
+Rwso1 = 1.25
+awso1 = 0.25
+
+[Coupling]
+couple_beta=0.0
+m1_2=1
+m2_2=10
+z1_2=0
+z2_2=4
+B_2=0
+Ec1=-0.5
+Ec2=-0.18
+l2=1
+j2=0.5

@@ -22,8 +22,8 @@ if(len(sys.argv) >= 3):
   print "Plot saved to figures/%s.png"%name
 else:
   name = time.time()
-  plt.savefig("figures/%f.png"%time, bbox_inches='tight')
-  #copyfile("../config.ini", "inifiles/%f.ini"%time)
-  print "Plot saved to figures/%f.png"%time
+  plt.savefig("figures/%f.png"%name, bbox_inches='tight')
+  #copyfile("../config.ini", "inifiles/%f.ini"%name)
+  print "Plot saved to figures/%f.png"%name
 plt.show()
 

@@ -151,11 +151,11 @@ void System::umatrixCalc(){
   cx_double ovalue, ivalue, opvalue, ipvalue;//, ovalue2, ivalue2, opvalue2, ipvalue2;
   
   for(unsigned int c = 0; c < channels.size(); c++){
-    /*Channel * c1 = &channels[c];
+    Channel * c1 = &channels[c];
     double kc = c1->getKc();
-    c1->io_coulomb_functions(kc*a, energy, targ, proj, 
-      &ivalue, &ovalue, &ipvalue, &opvalue);
-    */
+    //c1->io_coulomb_functions(kc*a, energy, targ, proj, 
+    //  &ivalue, &ovalue, &ipvalue, &opvalue);
+    
     for(unsigned int cprime = 0; cprime < channels.size(); cprime++){
       Channel * c2 = &channels[cprime];
       double kc2 = c2->getKc();
@@ -164,9 +164,11 @@ void System::umatrixCalc(){
       c2->io_coulomb_functions(kc2*a, targ, proj, 
         &ivalue, &ovalue, &ipvalue, &opvalue);
       
-      //possibly remove kc2 from the following equations
-      zomatrix(c,cprime) = coeff*(-1*kc2*a*rmatrix(c,cprime)*opvalue);
-      zimatrix(c,cprime) = coeff*(-1*kc2*a*rmatrix(c,cprime)*ipvalue);
+      //previous program did not have k in the following equations
+      zomatrix(c,cprime) = coeff*(-1*sqrt(kc*kc2)*
+        a*rmatrix(c,cprime)*opvalue);
+      zimatrix(c,cprime) = coeff*(-1*sqrt(kc*kc2)*
+        a*rmatrix(c,cprime)*ipvalue);
       if(c == cprime){
         zomatrix += coeff*ovalue;
         zimatrix += coeff*ivalue;
@@ -240,7 +242,7 @@ void System::waveFunction(boost::filesystem::ofstream& file){
       }
       //sum *= nrmlz;
       //file << ", " << std::real(sum);
-      wf.add(std::norm(sum));
+      wf.add(std::real(sum));
     }
     wfvalues.push_back(wf);
   }
@@ -287,7 +289,7 @@ void System::waveFunction(boost::filesystem::ofstream& file){
       }
       wfvalue *= nrmlz;
       //file << ", " << std::real(wfvalue);
-      wf.add(std::norm(wfvalue));
+      wf.add(std::real(wfvalue));
     }
     wfvalues.push_back(wf);
   
