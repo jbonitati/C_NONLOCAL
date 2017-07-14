@@ -3,6 +3,7 @@
 
 class Potential{
   protected:
+    //coefficients that can be used by potentials that inherit this one
     double coeff, r, a;
   
   public:
@@ -37,6 +38,13 @@ class SO_Potential : public Potential{
     SO_Potential(const Potential &p):Potential(p){ }
 };
 
+class Gauss_potential : public Potential{
+  public:
+    Gauss_potential(const double coeff, const double exponent): 
+      Potential(coeff, exponent, 0){ }
+    double getValue(double R) const;
+};
+  
 class CouplingPotential : public Potential{
   private:
     double beta_c;//coupling constant

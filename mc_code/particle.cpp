@@ -1,20 +1,24 @@
 #include "particle.h"
 #include <cmath>
+#include "constants.h"
 
 /*Returns the Coulomb potential for particles at distance R*/
 double Particle::coulomb_potential_to(double R, Particle targ)const
 {
-  double rc = 1.25; //don't know how to calculate this
+  //return 6*E2HC / R;
+  
+  double rc = 1.25; //coulomb radius (should be read as input)
   double Rcoul = rc*pow((targ.getM()),1.0/3.0);
   double z1 = targ.getZ();
   double z2 = getZ();
 
   if (R<Rcoul)
   {
-    return ((z1*z2*1.43997)/(2.0))*(3.0-pow(R,2.0)/(pow(Rcoul,2)));
+    return ((z1*z2*E2HC)/(2.0))*(3.0-pow(R,2.0)/(pow(Rcoul,2)));
   }
   else
   {
-    return (z1*z2*1.43997)/R;
+    return (z1*z2*E2HC)/R;
   }
+  
 }  

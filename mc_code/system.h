@@ -49,7 +49,7 @@ class System{
     
     double couplingPotential(double r1, double r2, int c1, int c2);
     
-    System(); //explicitly disallow default constructor (Meyers item 6)
+    System(); //explicitly disallow unwanted default constructor (Meyers item 6)
   public:
     ~System(){
       channels.clear();

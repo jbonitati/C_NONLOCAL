@@ -11,10 +11,10 @@ import time
 from shutil import copyfile
 
 data = pd.DataFrame.from_csv(sys.argv[1], index_col=0)
-data.plot(subplots=True)
+data.plot(subplots=True, grid = True)
 plt.xlabel('r (fm)')
 plt.ylabel('u(r)')
-plt.title('Wave Functions')
+plt.suptitle('Wave Functions')
 if(len(sys.argv) >= 3):
   name = sys.argv[2]
   plt.savefig("figures/%s.png"%name,bbox_inches='tight')

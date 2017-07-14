@@ -1,18 +1,23 @@
-#creates a template config.ini file with specified number of channels
+#creates a template config file with specified number of channels
+#arguments: 1 - name of template file to save to, 2 - number of channels
 
 import sys
 
-if(len(sys.argv)< 2):
+if(len(sys.argv)< 3):
   numc = input('Enter number of channels: ')
 else:
-  numc = sys.argv[1]
+  numc = sys.argv[2]
   
 numc = int(numc)
 
 #if(input('This will overwrite the config.ini in this folder. Continue? (y/n)') != "y"):
 #  quit()
+if(len(sys.argv) >= 2):
+  name = sys.argv[1]
+else:
+  name = "config.ini"
 
-f = open("config.ini","w+")
+f = open(name,"w+")
 
 HEADER = ";This is a template for an input file for the multichannel R-matrix method\n\
 ;This template uses %d channels\n\n"%numc
@@ -44,28 +49,28 @@ Channel_radius = 10\n\n"
 LOCAL = "[local]\n\
 Vv = 0\n\
 rv = 0\n\
-av = 0\n\
+av = 1\n\
 \n\
 Wv = 0\n\
 rwv = 0\n\
-awv = 0\n\
+awv = 1\n\
 \n\
 \n\
 Vd = 0\n\
 rvd = 0\n\
-avd = 0\n\
+avd = 1\n\
 \n\
 Wd = 0 \n\
 rwd = 0\n\
-awd = 0\n\
+awd = 1\n\
 \n\
 Vso = 0\n\
 Rso = 0\n\
-aso = 0\n\
+aso = 1\n\
 \n\
 Wso = 0\n\
 Rwso = 0\n\
-awso = 0\n\n"
+awso = 1\n\n"
 
 NONLOCAL = "[Non_local]\n\
 ;beta = range of nonlocality\n\
@@ -73,29 +78,29 @@ beta = 0\n\
 \n\
 Vv = 0\n\
 rv = 0\n\
-av = 0\n\
+av = 1\n\
 \n\
 Wv = 0\n\
 rwv = 0\n\
-awv = 0\n\
+awv = 1\n\
 \n\
 \n\
 Vd = 0\n\
 rvd = 0\n\
-avd = 0\n\
+avd = 1\n\
 \n\
 Wd = 0\n\
 rwd = 0\n\
-awd = 0\n\
+awd = 1\n\
 \n\
 \n\
 Vso = 0\n\
 Rso = 0\n\
-aso = 0\n\
+aso = 1\n\
 \n\
 Wso = 0\n\
 Rwso = 0\n\
-awso = 0\n\n"
+awso = 1\n\n"
 
 
 f.write(HEADER)
@@ -115,7 +120,7 @@ for i in range(numc):
 COUPLING = "beta = 0\n\
 V = 0\n\
 r = 0\n\
-a = 0\n\n"
+a = 1\n\n"
   
 for i in range(numc):
   j = i+2

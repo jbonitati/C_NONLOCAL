@@ -3,166 +3,166 @@
 
 [Settings] 
 ;output file will be stored in the "output" directory 
-output_file = neutron_wave 
+output_file = 5c_wave 
 ;note: you must have a separate section for each channel 
  num_channels = 5 
 entrance_channel = 1 
 
 [Numerical]
-Projectile_mass_number = 0 
-Target_mass_number = 0 
+Projectile_mass_number = 1
+Target_mass_number = 10
 
 Projectile_proton_number = 0 
-Target_proton_number = 0 
+Target_proton_number = 4
 
 ;E (MeV) 
-Projectile_energy = 0 
+Projectile_energy = 30
 
-Basis_size = 20
+Basis_size = 60
 Step_size = 0.01
-R_max = 20
+R_max = 100
 
 ;a (fm)
-Channel_radius = 10
+Channel_radius = 60
 
 [local]
-Vv = 0
-rv = 0
-av = 0
+Vv = 53
+rv = 2.8
+av = .5
 
 Wv = 0
 rwv = 0
-awv = 0
+awv = 1
 
 
 Vd = 0
 rvd = 0
-avd = 0
+avd = 1
 
 Wd = 0 
 rwd = 0
-awd = 0
+awd = 1
 
-Vso = 0
-Rso = 0
-aso = 0
+Vso = 48
+Rso = 2.8
+aso = .5
 
 Wso = 0
 Rwso = 0
-awso = 0
+awso = 1
 
 [Non_local]
 ;beta = range of nonlocality
-beta = 0
+beta = .85
 
-Vv = 0
-rv = 0
-av = 0
+Vv = 53
+rv = 2.8
+av = .5
 
 Wv = 0
 rwv = 0
-awv = 0
+awv = 1
 
 
 Vd = 0
 rvd = 0
-avd = 0
+avd = 1
 
 Wd = 0
 rwd = 0
-awd = 0
+awd = 1
 
 
 Vso = 0
 Rso = 0
-aso = 0
+aso = 1
 
 Wso = 0
 Rwso = 0
-awso = 0
+awso = 1
 
 [Channel1]
 Angular_momentum = 0
-Total_angular_momentum = 0
+Total_angular_momentum = .5
 Energy = 0
 
 [Channel2]
-Angular_momentum = 0
-Total_angular_momentum = 0
+Angular_momentum = 1
+Total_angular_momentum = .5
 Energy = 0
 
 [Channel3]
-Angular_momentum = 0
-Total_angular_momentum = 0
+Angular_momentum = 2
+Total_angular_momentum = 1.5
 Energy = 0
 
 [Channel4]
-Angular_momentum = 0
-Total_angular_momentum = 0
+Angular_momentum = 2
+Total_angular_momentum = .5
 Energy = 0
 
 [Channel5]
-Angular_momentum = 0
-Total_angular_momentum = 0
+Angular_momentum = 3
+Total_angular_momentum = 1.5
 Energy = 0
 
 [coupling12]
-beta = 0
-V = 0
-r = 0
-a = 0
+beta = .6
+V = 13
+r = 2.8
+a = 1
 
 [coupling13]
-beta = 0
-V = 0
-r = 0
-a = 0
+beta = .4
+V = 13
+r = 2.8
+a = 1
 
 [coupling14]
 beta = 0
 V = 0
 r = 0
-a = 0
+a = 1
 
 [coupling15]
 beta = 0
 V = 0
 r = 0
-a = 0
+a = 1
 
 [coupling23]
 beta = 0
 V = 0
 r = 0
-a = 0
+a = 1
 
 [coupling24]
-beta = 0
-V = 0
-r = 0
-a = 0
+beta = .8
+V = 30
+r = 2.8
+a = 1
 
 [coupling25]
 beta = 0
 V = 0
 r = 0
-a = 0
+a = 1
 
 [coupling34]
 beta = 0
 V = 0
 r = 0
-a = 0
+a = 1
 
 [coupling35]
-beta = 0
-V = 0
-r = 0
-a = 0
+beta = .3
+V = 20
+r = 2.8
+a = 1
 
 [coupling45]
-beta = 0
-V = 0
-r = 0
-a = 0
+beta = .6
+V = 10
+r = 2.8
+a = 1
 

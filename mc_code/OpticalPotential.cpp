@@ -28,6 +28,7 @@ arma::cx_double OpticalPotential::totalPotential
   return Volume_potential(radius, p) 
     + Surface_potential(radius, p) 
     + Spin_orbit_potential(radius, p, c);
+  return Gauss_potential(73.8,2.70).getValue(radius);
 }
 
 struct my_f_params {int a; double b;};
@@ -55,14 +56,15 @@ double integration(int l, double mu)
   double error;			/* the estimated error from the integration */
 
   struct my_f_params alpha;
+  
+  alpha.a = l;
+  alpha.b = mu;
+  
   gsl_function F1;            
   F1.function = &f1; 
   F1.params = &alpha;
   //c=1.0/(2.0*pow(1.0*i,alpha.a));
 
-  alpha.a = l;
-  //cout<<"a"<<alpha.a<<endl;
-  alpha.b = mu;
   gsl_integration_qags (&F1, lower_limit, upper_limit,
     abs_error, rel_error, 10000, work_ptr, &result,
     &error);

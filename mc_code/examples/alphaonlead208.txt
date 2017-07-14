@@ -1,11 +1,11 @@
 
 [Settings]
 ;output file will be stored in the "output" directory
-output_file = neutron_wave
+output_file = alphapb_wave
 
 ;note: you must have a separate section for each channel
 num_channels = 2
-entrance_channel = 1
+entrance_channel = 2
 
 [Numerical]
  
@@ -20,22 +20,22 @@ Projectile_energy = 50
 
 Basis_size = 60
 Step_size = 0.01
-R_max = 20.0
+R_max = 150
 
 ;a (fm)
-Channel_radius = 16
+Channel_radius = 100
 
 ;To add more channels, change the "num_channels" parameter in Settings,
 ;and copy and paste the following Channel sections, changing the number
 ;in each name
 [Channel1]
-Angular_momentum = 20
-Total_angular_momentum = 20
+Angular_momentum = 2
+Total_angular_momentum = 2
 Energy = 0
 
 [Channel2]
-Angular_momentum = 10
-Total_angular_momentum = 10
+Angular_momentum = 1
+Total_angular_momentum = 1
 Energy = 20
 
 ;coupling constants

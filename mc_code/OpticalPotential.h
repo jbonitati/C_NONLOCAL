@@ -21,11 +21,11 @@ class OpticalPotential{
       Volume_Re(Vr), Volume_Im(Vi), Surface_Re(Sr), Surface_Im(Si),
       SpinOrbit_Re(SOr), SpinOrbit_Im(SOi){ }
       
-    //todo: write explicit copy constructor
-      
     arma::cx_double totalPotential(double radius, Particle p, Channel * c)const;
 };
 
+//Nonlocal potential is a subclass of OpticalPotential so that it can
+//use its parameterization and total potential function
 class NonLocalOpticalPotential : public OpticalPotential{
   private:
     const double beta;//range of nonlocality

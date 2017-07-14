@@ -29,6 +29,7 @@ class Channel{
     double getKc()const;
     double getVc()const;
     double getEta( Particle targ, Particle proj)const;
+    bool isOpen()const{return energy > E;}
     
     double central_potential(double R)const;
     void io_coulomb_functions(double x, Particle targ, Particle proj,

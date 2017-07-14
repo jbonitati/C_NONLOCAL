@@ -28,7 +28,7 @@
 #include <boost/property_tree/ini_parser.hpp>
 #include <boost/lexical_cast.hpp>
 
-using namespace boost::numeric::ublas;
+using namespace boost::numeric::ublas;//matrix
 
 //namespace is superior to static
 namespace { 
@@ -50,8 +50,8 @@ void loadSystem(){
   double m1=pt.get<double>("Numerical.Projectile_mass_number") ;
   double m2=pt.get<double>("Numerical.Target_mass_number") ;
   double a_size=pt.get<double>("Numerical.Channel_radius") ;
-  int z1=pt.get<int>("Numerical.Target_proton_number");
-  int z2=pt.get<int>("Numerical.Projectile_proton_number");
+  int z1=pt.get<int>("Numerical.Projectile_proton_number");
+  int z2=pt.get<int>("Numerical.Target_proton_number");
   double Nr=pt.get<double>("Numerical.Step_size");
   double E = pt.get<double>("Numerical.Projectile_energy");
   double R_max=pt.get<double>("Numerical.R_max");
@@ -74,10 +74,6 @@ void loadSystem(){
   double Wso=pt.get<double>("local.Wso") ;
   double Rwso=pt.get<double>("local.Rwso");
   double awso=pt.get<double>("local.awso");
-  
-  OpticalPotential op(V_Potential(Vv, rv, av), V_Potential(Wv, rwv, awv),
-    D_Potential(Vd, rvd, avd), D_Potential(Wd,rwd,awd),
-    SO_Potential(Vso, Rso, aso), SO_Potential(Wso, Rwso, awso));
 
   double Vv1=pt.get<double>("Non_local.Vv") ;
   double rv1=pt.get<double>("Non_local.rv") ;
@@ -106,6 +102,7 @@ void loadSystem(){
   std::vector<Channel> channels;
   channels.reserve(num_channels);
   double mu = m1*m2/ (m1+m2);
+  std::cout << mu << std::endl;
   try{
     
     for(int i = 1; i <= num_channels; i++){
@@ -139,7 +136,10 @@ void loadSystem(){
     }
   }
   
-  
+  OpticalPotential op(V_Potential(Vv, rv, av), V_Potential(Wv, rwv, awv),
+    D_Potential(Vd, rvd, avd), D_Potential(Wd,rwd,awd),
+    SO_Potential(Vso, Rso, aso), SO_Potential(Wso, Rwso, awso));
+    
   NonLocalOpticalPotential nlop(V_Potential(Vv1, rv1, av1), 
     V_Potential(Wv1, rwv1, awv1),
     D_Potential(Vd1, rvd1, avd1), D_Potential(Wd1,rwd1,awd1),

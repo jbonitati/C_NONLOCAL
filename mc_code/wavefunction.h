@@ -8,6 +8,7 @@ class WaveFunction{
   public:
     WaveFunction(double r_): r(r_){ }
     void add(double v){ values.push_back(v);}
+    double getR()const{return r;}
     
     //function for writing wavefunction values to a stream (as csv)
     friend std::ostream& operator<<(std::ostream &os, const WaveFunction &wf){
