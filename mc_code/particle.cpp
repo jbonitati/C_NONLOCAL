@@ -3,11 +3,10 @@
 #include "constants.h"
 
 /*Returns the Coulomb potential for particles at distance R*/
-double Particle::coulomb_potential_to(double R, Particle targ)const
+double Particle::coulomb_potential_to(double R, double rc, Particle targ)const
 {
   //return 6*E2HC / R;
   
-  double rc = 1.25; //coulomb radius (should be read as input)
   double Rcoul = rc*pow((targ.getM()),1.0/3.0);
   double z1 = targ.getZ();
   double z2 = getZ();

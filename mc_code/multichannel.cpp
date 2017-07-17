@@ -27,6 +27,7 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/ini_parser.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/timer/timer.hpp>
 
 using namespace boost::numeric::ublas;//matrix
 
@@ -55,6 +56,7 @@ void loadSystem(){
   double Nr=pt.get<double>("Numerical.Step_size");
   double E = pt.get<double>("Numerical.Projectile_energy");
   double R_max=pt.get<double>("Numerical.R_max");
+  double rc = pt.get<double>("Numerical.Coulomb_radius");
 
   double Vv=pt.get<double>("local.Vv") ;
   double rv=pt.get<double>("local.rv") ;
@@ -102,7 +104,7 @@ void loadSystem(){
   std::vector<Channel> channels;
   channels.reserve(num_channels);
   double mu = m1*m2/ (m1+m2);
-  std::cout << mu << std::endl;
+  //std::cout << mu << std::endl;
   try{
     
     for(int i = 1; i <= num_channels; i++){
@@ -145,12 +147,17 @@ void loadSystem(){
     D_Potential(Vd1, rvd1, avd1), D_Potential(Wd1,rwd1,awd1),
     SO_Potential(Vso1, Rso1, aso1), SO_Potential(Wso1, Rwso1, awso1), beta);
     
-  mySystem = new System(a_size, E, proj, targ, 
+  std::cout << "Basis size: " << NN << std::endl;
+  std::cout << "Channel radius: " << a_size << std::endl;
+  std::cout << "Number of channels: " << num_channels << std::endl;
+    
+  mySystem = new System(a_size, E, proj, targ, rc,
     c0, channels, op, nlop, NN, Nr, R_max, cpmat);
 }
 
 int main()
-{   
+{
+  boost::timer::auto_cpu_timer t("Total time: %t sec CPU, %w sec real\n");
   
   std::cout << "Initializing system..." << std::endl;
   loadSystem();
@@ -164,7 +171,6 @@ int main()
   
   outfile.close();
   
-  std::cout << "done" << std::endl;
-  
+  delete mySystem;
   return 0;
 }

@@ -2,75 +2,75 @@
 [Settings]
 ;output file will be stored in the "output" directory
 ;and given the .csv extension
-output_file = O16Ca44coupled
+output_file = pCa
 
 ;note: you must have a separate section for each channel
-num_channels = 2
+num_channels = 1
 entrance_channel = 1
 
 [Numerical]
  
-Projectile_mass_number =16
-Target_mass_number =44
+Projectile_mass_number =1
+Target_mass_number =40
 
-Projectile_proton_number = 8
+Projectile_proton_number = 1
 Target_proton_number = 20
 
-Coulomb_radius = 7.26
+Coulomb_radius = 1.11
 
 ;E (MeV)
-Projectile_energy = 34
+Projectile_energy = 5
 
-Basis_size = 100
-Step_size = 0.05
+Basis_size = 60
+Step_size = 0.01
 R_max = 30
 
 ;a (fm)
-Channel_radius = 13
+Channel_radius = 20
 
 ;To add more channels, change the "num_channels" parameter in Settings,
 ;and copy and paste the following Channel sections, changing the number
 ;in each name
 [Channel1]
 Angular_momentum = 0
-Total_angular_momentum = 30
+Total_angular_momentum = 0.5
 Energy = 0
 
 [Channel2]
-Angular_momentum = 2
-Total_angular_momentum = 30
-Energy = 1.156
+Angular_momentum = 1
+Total_angular_momentum = 0.5
+Energy = 3.368
 
 ;coupling constants
 [coupling12]
-beta = .4
-V = 110
-r = 4.23
+beta = .6
+V = 50
+r = 1.16
 a = .5
 
 [local]
-Vv = 110
-rv = 7.26
-av = .5
+Vv = 47.3
+rv = 1.156
+av = .739
 
-Wv = 20
-rwv = 7.26
-awv = .5
+Wv = .09
+rwv = 1.389
+awv = .568
 
 
-Vd = 0 
+Vd = 30  
 rvd = 1.25
 avd = 0.25
 
-Wd = 0 
+Wd = 6.46 
 rwd = 1.389
 awd = 0.568
 
-Vso = 0
+Vso = 28
 Rso = 1.16
 aso = 0.5
 
-Wso = 0
+Wso = 3.9
 Rwso = 1.25
 awso = 0.53
 
@@ -78,7 +78,7 @@ awso = 0.53
 
 [Non_local]
 ;beta = range of nonlocality (0 if using local potential only)
-beta = 0
+beta = .85
 
 Vv = 47.3
 rv = 1.156

@@ -23,6 +23,8 @@ class System{
     const Particle proj;  //projectile particle
     const Particle targ; //target particle
     
+    double coulomb_radius; //Coulomb radius (rc)
+    
     const unsigned int entrance_channel;
     std::vector<Channel> channels; //an array of channels
     
@@ -44,10 +46,11 @@ class System{
     matrix<CouplingPotential> coupling_matrix;
     
     void cmatrixCalc();
+    void invertCmatrix();
     void rmatrixCalc();
     void umatrixCalc();
     
-    double couplingPotential(double r1, double r2, int c1, int c2);
+    double couplingPotential(double, double, unsigned int, unsigned int);
     
     System(); //explicitly disallow unwanted default constructor (Meyers item 6)
   public:
@@ -56,7 +59,7 @@ class System{
     }
     
     System(const double a_size, double e,
-      Particle projectile, Particle target,
+      Particle projectile, Particle target, double rc,
       int c0, std::vector<Channel> channels_,
       OpticalPotential op, NonLocalOpticalPotential nlop, int basis_size,
       double step, double max,matrix<CouplingPotential> coupling);

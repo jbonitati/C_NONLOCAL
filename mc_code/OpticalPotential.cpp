@@ -72,7 +72,7 @@ double integration(int l, double mu)
 }
 arma::cx_double NonLocalOpticalPotential::totalPotential
 (double r1, double r2, Particle p, Channel  * c) const{
-  if(beta == 0) return 0;
+  if(beta == 0.0) return 0;
   
   double ravg = (r1+r2)/2.0;
   int l = c->getL();

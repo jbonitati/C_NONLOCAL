@@ -8,17 +8,18 @@
 #include <complex>
 #include "potential.h"
 #include "constants.h"
+#include <boost/timer/timer.hpp>
 
 using namespace boost::numeric::ublas;
 using namespace arma; //cx_double
 
 
 System::System(const double a_size, double e,
-  Particle projectile, Particle target,
+  Particle projectile, Particle target, double rc,
   int c0, std::vector<Channel> c,
   OpticalPotential op, NonLocalOpticalPotential nlop, int b_size,
   double step, double max, matrix<CouplingPotential> coupling): 
-  a(a_size), energy(e), proj(projectile), targ(target), 
+  a(a_size), energy(e), proj(projectile), targ(target), coulomb_radius(rc),
   entrance_channel(c0), channels(c),
   pot(op), nlpot(nlop), basis_size(b_size), step_size(step), r_max(max),
   lagrangeBasis(basis_size, a_size), cmatrix(c.size()*basis_size, c.size()*basis_size),
@@ -27,30 +28,36 @@ System::System(const double a_size, double e,
 {
   
   std::cout << "Calculating C matrix..." << std::endl;
-  //calculate C matrix and inverse C matrix
   cmatrixCalc();
   
+  std::cout << "Calculating inverse C matrix..." << std::endl;
+  invertCmatrix();
+  
   std::cout << "Calculating R matrix..." << std::endl;
-  //calculate R matrix
   rmatrixCalc();
-  std::cout << rmatrix << std::endl;
+  //if(channels.size() <= 4)
+    std::cout << rmatrix << std::endl;
   
   std::cout << "Calculating Collision (U) matrix..." << std::endl;
-  //calculate U matrix
   umatrixCalc();
-  std::cout << umatrix << std::endl;
+  //if(channels.size() <= 4)
+    std::cout << umatrix << std::endl;
+    
+  std::cout << "UU*: (should be identity matrix for real potentials)" << std::endl;
+  std::cout << umatrix.t()*umatrix << std::endl;
   
-  //std::cout << channels[0].getKc() << " " << a_size << std::endl;
-  //channels[0].coulomb_test(channels[0].getKc()*a_size, targ, proj);
 }
 
 
-//calculates the coupling potential between two channels
-double System::couplingPotential(double r1, double r2, int c1, int c2){
-  return coupling_matrix(c1,c2).getValue(r1,r2,targ);
+//returns the coupling potential between two channels
+double System::couplingPotential(double r1, double r2,
+  unsigned int c1, unsigned int c2){
+  return 0;
+  //return coupling_matrix(c1,c2).getValue(r1,r2,targ);
 }
 
 void System::cmatrixCalc(){
+  boost::timer::auto_cpu_timer t;
   //the C matrix is made up of a different matrix for each pair of channels
   int N = basis_size;
   
@@ -78,7 +85,7 @@ void System::cmatrixCalc(){
           Vmatrix(i,i) = c1->central_potential(ri) 
             + c1->getE() - energy
             + pot.totalPotential(ri, targ, c1)
-            + proj.coulomb_potential_to(ri, targ);
+            + proj.coulomb_potential_to(ri, coulomb_radius, targ);
           for(int j = 0; j < N; j++){
             double xj = lagrangeBasis.x(j);
             double rj = a*xj;
@@ -115,19 +122,17 @@ void System::cmatrixCalc(){
       }
     }
   }
-  std::cout << "Calculating inverse C matrix..." << std::endl;
-  //std::cout << arma::inv(arma::real(cmatrix(0,1))) << std::endl;
-  //now create inverted C matrix
-  //for(unsigned int i = 0; i < channels.size(); i++){
-  //  for(unsigned int j = 0; j < channels.size(); j++){
-  invcmatrix = arma::inv(cmatrix);
-  //  }
-  //}
 }
 
+/*calculates the inverse of the C matrix*/
+void System::invertCmatrix(){
+  boost::timer::auto_cpu_timer t;
+  invcmatrix = arma::inv(cmatrix);
+}
 
 /*calculates the rmatrix from the inverse C matrix*/
 void System::rmatrixCalc(){
+  boost::timer::auto_cpu_timer t;
   for(unsigned int c = 0; c < channels.size(); c++){
     Channel * c1 = &channels[c];
     for(unsigned int cprime = 0; cprime < channels.size(); cprime++){
@@ -147,6 +152,7 @@ void System::rmatrixCalc(){
 
 //calculates and returns the collision matrix from the R matrix
 void System::umatrixCalc(){
+  boost::timer::auto_cpu_timer t;
   arma::cx_mat zimatrix(channels.size(),channels.size());
   arma::cx_mat zomatrix(channels.size(),channels.size());
   cx_double ovalue, ivalue, opvalue, ipvalue;//, ovalue2, ivalue2, opvalue2, ipvalue2;
@@ -183,7 +189,7 @@ void System::umatrixCalc(){
 //takes the C and U matrices and stores the wavefunction values for each
 //channel in the specified file
 void System::waveFunction(boost::filesystem::ofstream& file){
-  
+  boost::timer::auto_cpu_timer t;
   std::vector<WaveFunction> wfvalues;
   wfvalues.reserve(std::floor(r_max / step_size) + 1);
   

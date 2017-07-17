@@ -13,5 +13,5 @@ class Particle{
     const double getZ() const {return z;}
     const double getN() const {return n;}
     
-    double coulomb_potential_to(double R, Particle targ)const;
+    double coulomb_potential_to(double R, double rc,Particle targ)const;
 };
