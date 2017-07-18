@@ -32,7 +32,7 @@ double Gauss_potential::getValue(double R)const{
 double CouplingPotential::getValue(double r1, double r2, Particle p)const{
   double Rr = r;//*pow(p.getM(),1.0/3.0);
   double R = (r1+r2)/2.0;
-  double pot = beta_c//*r/a
+  double pot = beta_c*r/a
     *(coeff*exp((R-Rr)/a))/pow((1.0+exp((R-Rr)/a)),2.0);
   if(beta_nl != 0) pot *= exp(-1.0*(r1*r1 + r2*r2)/(beta_nl*beta_nl));//exp(-1.0*pow((r1-r2)/beta_nl, 2.0));
   return pot;

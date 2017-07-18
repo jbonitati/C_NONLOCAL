@@ -10,8 +10,9 @@ import sys
 import time
 from shutil import copyfile
 
-data = pd.DataFrame.from_csv(sys.argv[1], index_col=0)
-data.plot(subplots=True, grid = True)
+data = pd.read_csv(sys.argv[1], index_col=0)
+data.plot(grid = True)
+plt.legend(loc='best')
 plt.xlabel('r (fm)')
 plt.ylabel('u(r)')
 plt.suptitle('Wave Functions')
