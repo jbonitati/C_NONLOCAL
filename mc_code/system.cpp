@@ -11,7 +11,7 @@
 #include <boost/timer/timer.hpp>
 
 using namespace boost::numeric::ublas;
-using namespace arma; //cx_double
+using namespace arma; //for cx_double typedef
 
 
 System::System(const double a_size, double e,
@@ -42,9 +42,9 @@ System::System(const double a_size, double e,
   umatrixCalc();
   //if(channels.size() <= 4)
     std::cout << umatrix << std::endl;
-    
-  std::cout << "UU*: (should be identity matrix for real potentials)" << std::endl;
-  std::cout << umatrix.t()*umatrix << std::endl;
+  
+  //std::cout << "The following matrix should be identity if using real potential:" << std::endl;
+  //std::cout << umatrix.t()*umatrix << std::endl;
   
 }
 
@@ -52,8 +52,8 @@ System::System(const double a_size, double e,
 //returns the coupling potential between two channels
 double System::couplingPotential(double r1, double r2,
   unsigned int c1, unsigned int c2){
-  return 0;
-  //return coupling_matrix(c1,c2).getValue(r1,r2,targ);
+  //return 0;
+  return coupling_matrix(c1,c2).getValue(r1,r2,targ);
 }
 
 void System::cmatrixCalc(){
@@ -114,8 +114,8 @@ void System::cmatrixCalc(){
             double xj = lagrangeBasis.x(j);
             double rj = a*xj;
             
-            Vmatrix(i,j) = a*sqrt(lagrangeBasis.w(i)*lagrangeBasis.w(j))
-              *couplingPotential(ri,rj,c,cprime);
+            Vmatrix(i,j) = a*sqrt(lagrangeBasis.w(i)*lagrangeBasis.w(j))*
+              couplingPotential(ri,rj,c,cprime);
           }
         }
         cmatrix.submat(c*N, cprime*N, (c+1)*N-1, (cprime+1)*N-1) = Vmatrix;
@@ -153,8 +153,8 @@ void System::rmatrixCalc(){
 //calculates and returns the collision matrix from the R matrix
 void System::umatrixCalc(){
   boost::timer::auto_cpu_timer t;
-  arma::cx_mat zimatrix(channels.size(),channels.size());
-  arma::cx_mat zomatrix(channels.size(),channels.size());
+  arma::cx_mat zimatrix(channels.size(),channels.size(), arma::fill::zeros);
+  arma::cx_mat zomatrix(channels.size(),channels.size(), arma::fill::zeros);
   cx_double ovalue, ivalue, opvalue, ipvalue;//, ovalue2, ivalue2, opvalue2, ipvalue2;
   
   for(unsigned int c = 0; c < channels.size(); c++){
@@ -177,12 +177,14 @@ void System::umatrixCalc(){
         a*rmatrix(c,cprime)*opvalue);
       zimatrix(c,cprime) = coeff*(-1*kc2*
         a*rmatrix(c,cprime)*ipvalue);
+        
       if(c == cprime){
-        zomatrix += coeff*ovalue;
-        zimatrix += coeff*ivalue;
+        zomatrix(c,cprime) += coeff*ovalue;
+        zimatrix(c,cprime) += coeff*ivalue;
       }
     }
   }
+  //std::cout << zomatrix << zimatrix;
   umatrix = (arma::inv(zomatrix)*zimatrix);
 }
 

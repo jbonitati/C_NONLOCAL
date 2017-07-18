@@ -7,7 +7,7 @@ double Particle::coulomb_potential_to(double R, double rc, Particle targ)const
 {
   //return 6*E2HC / R;
   
-  double Rcoul = rc*pow((targ.getM()),1.0/3.0);
+  double Rcoul = rc;//*(pow(getM(), 1.0/3.0) + pow(targ.getM(),1.0/3.0));
   double z1 = targ.getZ();
   double z2 = getZ();
 

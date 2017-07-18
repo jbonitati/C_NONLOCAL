@@ -4,7 +4,7 @@
 output_file = neutron_wave
 
 ;note: you must have a separate section for each channel
-num_channels = 1
+num_channels = 2
 entrance_channel = 1
 
 [Numerical]
@@ -15,15 +15,17 @@ Target_mass_number =10
 Projectile_proton_number = 0
 Target_proton_number = 4
 
+Coulomb_radius = 2.5
+
 ;E (MeV)
-Projectile_energy = 3.368
+Projectile_energy = 5
 
 Basis_size = 60
-Step_size = 0.01
+Step_size = 0.1
 R_max = 30.0
 
 ;a (fm)
-Channel_radius = 15
+Channel_radius = 10
 
 ;To add more channels, change the "num_channels" parameter in Settings,
 ;and copy and paste the following Channel sections, changing the number
@@ -36,19 +38,19 @@ Energy = 0
 [Channel2]
 Angular_momentum = 1
 Total_angular_momentum = 0.5
-Energy = 0.18
+Energy = 3.368
 
 ;coupling constants
 [coupling12]
-beta = 0
-V = 53.28
-r = 2.483
-a = .25
+beta = .65
+V = 50
+r = 2.5
+a = .65
 
 [local]
-Vv = 53.28
-rv = 2.483
-av = .25
+Vv = 50
+rv = 2.5
+av = .65
 
 Wv = 0
 rwv = 8.363
@@ -63,7 +65,7 @@ Wd = 0
 rwd = 1.25
 awd = 0.25
 
-Vso = 13.44
+Vso = 0
 Rso = 2.483
 aso = 0.25
 
@@ -75,7 +77,7 @@ awso = 0.25
 
 [Non_local]
 ;beta = range of nonlocality (0 if using local potential only)
-beta = .6
+beta = 0
 
 Vv = 0
 rv = 1.25

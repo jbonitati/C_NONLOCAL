@@ -157,7 +157,7 @@ void loadSystem(){
 
 int main()
 {
-  boost::timer::auto_cpu_timer t("Total time: %t sec CPU, %w sec real\n");
+  boost::timer::auto_cpu_timer t("Total time: %w sec real, %t sec CPU\n");
   
   std::cout << "Initializing system..." << std::endl;
   loadSystem();

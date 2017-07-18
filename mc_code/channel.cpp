@@ -6,6 +6,10 @@
 #include "particle.h"
 #include "constants.h"
 
+//Channel Constructor
+//uses spin = total_angular_momentum - angular_momentum
+//sets the bloch constant to 0 for open channels or the logarithmic derivative
+// of the whittaker function for closed channels
 Channel::Channel(const double ec, const int l_, const double j_,
   const double mu_, double energy_, double a, Particle targ, Particle proj):
     E(ec), l(l_), j(j_), m(j_ - l_), mu(mu_), b(0), energy(energy_){ 
@@ -27,7 +31,8 @@ double Channel::central_potential(double R)const
 // the total energy of the system
 //units: fm^{-1}
 double Channel::getKc()const{
-  return sqrt(2*mu*mass_unit*std::abs(energy-E)) / hbarc;
+  return sqrt(2*mu*mass_unit*std::abs(energy-E))
+    / hbarc;
 }
 
 //returns the relative velocity of the channel with respect to 
