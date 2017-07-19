@@ -168,7 +168,7 @@ int main()
   std::cout << "Creating output file: " << filePath << std::endl;
   
   std::cout << "Calculating wave functions..." << std::endl;
-  mySystem->waveFunction(outfile);
+  mySystem->waveFunctions(outfile);
   
   outfile.close();
   

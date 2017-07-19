@@ -1,13 +1,8 @@
 #include <cmath>
 #include <gsl/gsl_sf.h>
-#include <fstream>
 #include "system.h"
 #include <iostream>
 #include <vector>
-#include "wavefunction.h"
-#include <complex>
-#include "potential.h"
-#include "constants.h"
 #include <boost/timer/timer.hpp>
 #include <boost/math/special_functions/round.hpp>
 
@@ -190,144 +185,131 @@ void System::umatrixCalc(){
   umatrix = (arma::inv(zomatrix)*zimatrix);
 }
 
-//takes the C and U matrices and stores the wavefunction values for each
-//channel in the specified file
-void System::waveFunction(boost::filesystem::ofstream& file){
-  boost::timer::auto_cpu_timer t;
-  int num_values = iround(r_max / step_size) + 1;
-  int inner_size = (a < r_max) ? (iround(a / step_size)+1) : num_values;
-  WaveFunction wfvalues[num_values];
-  
-  double r = 0;
-  //std::cout << "radius: " << r;
-  #pragma omp parallel for
-  for(int i = 0; i < inner_size; i++){ 
-    r = i*step_size;
-    //std::cout << "\rradius: " << r << std::flush;   
-    //file << r;
-    WaveFunction wf(r);
-    for(unsigned int c = 0; c < channels.size(); c++){
-      Channel * c1 = &channels[c];
-      double vc1 = c1->getVc();
+//Calculates the wave function for all channels at r < a
+WaveFunction System::internalWaveFunction(double r){
+  WaveFunction wf(r, channels.size());
+  for(unsigned int c = 0; c < channels.size(); c++){
+    Channel * c1 = &channels[c];
+    double vc1 = c1->getVc();
+    
+    //compute partial wave function u^int_c(c0)(r)
+    //sum contains the coefficient calculated over all open channels
+    cx_double wfvalue = 0;
+    cx_double oval, ival, opval, ipval;
+    
+    for(unsigned int cprime = 0; 
+      cprime < channels.size() && channels[cprime].isOpen();
+      cprime++)
+    {
+      Channel * c2 = &channels[cprime];
+    
+      double kc = c2->getKc();
+      //double vc = c2->getVc();
+      double mu = c2->getMu();
+      c2->io_coulomb_functions(kc*a, targ, proj, 
+        &ival, &oval, &ipval, &opval);
       
-      //compute partial wave function u^int_c(c0)(r)
-      //sum contains the coefficient calculated over all open channels
+      cx_double coeff = nrmlz*hbarc*hbarc*kc
+        /(2*mass_unit*mu*sqrt(vc1));
+      cx_double outersum = 
+        -1.0 *coeff*umatrix(cprime, entrance_channel)*opval;
+      if(cprime == entrance_channel)
+        outersum += coeff*ipval;
+
+      arma::rowvec phir = lagrangeBasis.get_phi_r(r);
+      arma::cx_mat cinv = invcmatrix.submat(c*basis_size, cprime*basis_size, 
+          (c+1)*basis_size - 1, (cprime + 1)*basis_size - 1);
+      arma::vec phia = lagrangeBasis.get_phi_a();
+      cx_double innersum = arma::as_scalar(phir*cinv*phia);
+      wfvalue += outersum*innersum;
+      
+    }
+    wf.add(wfvalue);
+  }
+  return wf;
+}
+
+//Calculates the wave function for all channels at r > a
+WaveFunction System::externalWaveFunction(double r){
+  WaveFunction wf(r, channels.size());
+  for(unsigned int c = 0; c < channels.size(); c++){
+    cx_double oval, ival, opval, ipval;
+    Channel * c1 = &channels[c];
+    double kc = c1->getKc();
+    double vc = c1->getVc();
+    //double etac = c1->getEta(energy, targ, proj);
+    //double mu = c1->getMu();
+    c1->io_coulomb_functions(kc*r, targ, proj, 
+      &ival, &oval, &ipval, &opval);
+    cx_double wfvalue;
+    if(energy >= c1->getE()){
+      //Open Channel
+      
+      double coeff = 1.0/sqrt(vc);
+      wfvalue = -1.0 *coeff*umatrix(c, entrance_channel)*oval;
+      if(c == entrance_channel)
+        wfvalue += coeff*ival;
+        
+    }else{
+      //Closed Channel
+      
+      double coeff = 1.0/c1->whittaker(2*kc*a, targ, proj);
       cx_double sum = 0;
-      cx_double oval, ival, opval, ipval;
-      
       for(unsigned int cprime = 0; 
         cprime < channels.size() && channels[cprime].isOpen();
         cprime++)
       {
         Channel * c2 = &channels[cprime];
-      
-        double kc = c2->getKc();
-        //double vc = c2->getVc();
-        double mu = c2->getMu();
-        c2->io_coulomb_functions(kc*a, targ, proj, 
-          &ival, &oval, &ipval, &opval);
-        
-        cx_double coeff = nrmlz*hbarc*hbarc*kc
-          /(2*mass_unit*mu*sqrt(vc1));
-        cx_double outersum = 
-          -1.0 *coeff*umatrix(cprime, entrance_channel)*opval;
+        cx_double oval2, ival2, opval2, ipval2;
+        double kc2 = c2->getKc();
+        double mu2 = c2->getMu();
+        c2->io_coulomb_functions(kc2*a, targ, proj, 
+          &ival2, &oval2, &ipval2, &opval2);
+        cx_double sumcoeff = sqrt(mass_unit*mu2*kc2/hbarc)*a*rmatrix(c,cprime);
+        sum += -1.0*sumcoeff*umatrix(cprime,entrance_channel)*opval2;
         if(cprime == entrance_channel)
-          outersum += coeff*ipval;
-          
-        //if(r == 0){
-          /*std::cout << "I(ka) " << ival << ", O(ka) " << oval << ", I'(ka) " << ipval << ", O'(ka) " << opval << std::endl;
-          std::cout << kc << std::endl;
-          std::cout << umatrix(cprime, entrance_channel) << std::endl;
-          std::cout << nrmlz*(ipval - umatrix(cprime, entrance_channel)*opval) << std::endl;
-          */
-          //std::cout << nrmlz*outersum << std::endl;
-        //}
-        
-        cx_double innersum = 0;
-        arma::rowvec phir = lagrangeBasis.get_phi_r(r);
-        arma::cx_mat cinv = invcmatrix.submat(c*basis_size, cprime*basis_size, 
-            (c+1)*basis_size - 1, (cprime + 1)*basis_size - 1);
-        arma::vec phia = lagrangeBasis.get_phi_a();
-        innersum = arma::as_scalar(phir*cinv*phia);
-        /*for(int i = 0; i < basis_size; i++){
-          for(int j = 0; j < basis_size; j++){
-            innersum += lagrangeBasis.phi(i+1,r)
-              *invcmatrix(c*basis_size + i, cprime*basis_size + j)
-              *lagrangeBasis.phi(j+1,a);
-          }
-        }*/
-        sum += outersum*innersum;
-        
+          sum += sumcoeff*ipval2;
       }
-      //sum *= nrmlz;
-      //file << ", " << std::real(sum);
-      wf.add(std::real(sum));
+      wfvalue = coeff*sum*c1->whittaker(2*kc*r, targ, proj);
     }
-    wfvalues[iround(r / step_size)] = wf;
+    wfvalue *= nrmlz;
+    wf.add(wfvalue);
+  }
+  return wf;
+}
+
+//calculates the wavefunction for all channels at distance r
+//Returns the wave function in WaveFunction object, which
+// contains the distance  r  and values for each channel
+WaveFunction System::calculateWaveFunction(double r){
+  if(r < a){
+    return internalWaveFunction(r);
+  }else{
+    return externalWaveFunction(r);
+  }
+}
+
+//calculates the wave functions for each channel and stores them in file
+void System::waveFunctions(boost::filesystem::ofstream& file){
+  boost::timer::auto_cpu_timer t;
+  int num_values = iround(r_max / step_size) + 1;
+  std::vector<WaveFunction> wfvalues(num_values);
+  
+  int i;
+  #pragma omp parallel for
+  for(i = 0; i < num_values; i++){
+    wfvalues[i] = calculateWaveFunction(i*step_size);
   }
   
-  //now print the external wave function calculated from coulomb scattering
-  //with the collision matrix
-  while(r <= r_max){
-    std::cout << "\rradius: " << r << std::flush;
-   //file << r;
-   WaveFunction wf(r);
-   for(unsigned int c = 0; c < channels.size(); c++){
-      cx_double oval, ival, opval, ipval;
-      Channel * c1 = &channels[c];
-      double kc = c1->getKc();
-      double vc = c1->getVc();
-      //double etac = c1->getEta(energy, targ, proj);
-      //double mu = c1->getMu();
-      c1->io_coulomb_functions(kc*r, targ, proj, 
-        &ival, &oval, &ipval, &opval);
-      cx_double wfvalue;
-      if(energy >= c1->getE()){
-        
-        double coeff = 1.0/sqrt(vc);
-        wfvalue = -1.0 *coeff*umatrix(c, entrance_channel)*oval;
-        if(c == entrance_channel)
-          wfvalue += coeff*ival;
-          
-      }else{
-        double coeff = 1.0/c1->whittaker(2*kc*a, targ, proj);
-        cx_double sum = 0;
-        for(unsigned int cprime = 0; 
-          cprime < channels.size() && channels[cprime].isOpen();
-          cprime++)
-        {
-          Channel * c2 = &channels[cprime];
-          cx_double oval2, ival2, opval2, ipval2;
-          double kc2 = c2->getKc();
-          double mu2 = c2->getMu();
-          c2->io_coulomb_functions(kc2*a, targ, proj, 
-            &ival2, &oval2, &ipval2, &opval2);
-          cx_double sumcoeff = sqrt(mass_unit*mu2*kc2/hbarc)*a*rmatrix(c,cprime);
-          sum += -1.0*sumcoeff*umatrix(cprime,entrance_channel)*opval2;
-          if(cprime == entrance_channel)
-            sum += sumcoeff*ipval2;
-        }
-        wfvalue = coeff*sum*c1->whittaker(2*kc*r, targ, proj);
-      }
-      wfvalue *= nrmlz;
-      //file << ", " << std::real(wfvalue);
-      wf.add(std::real(wfvalue));
-    }
-    wfvalues[iround(r / step_size)] = wf;
-  
-   r += step_size; 
-  }
   std::cout << std::endl;
   std::cout << "Printing Wave functions to file..." << std::endl;
   
   file << "r";
-  //file << 
   for(unsigned int i = 1; i <= channels.size(); i++){
     file << ", Channel " << i;
   }
   file << std::endl;
-  for(int i = 0; i < num_values; i++){
-    file << wfvalues[i];
-    //file << (*it).getR() << ", " << pot.totalPotential((*it).getR(), targ, &channels[0]) << std::endl;
+  for(std::vector<WaveFunction>::iterator it = wfvalues.begin(); it!= wfvalues.end(); it++){
+    file << (*it);
   }
 }

@@ -2,6 +2,9 @@
 #include "particle.h"
 #include "OpticalPotential.h"
 #include "lagbasis.h"
+#include "wavefunction.h"
+#include "potential.h"
+#include "constants.h"
 
 #include <boost/serialization/array_wrapper.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
@@ -52,6 +55,10 @@ class System{
     
     double couplingPotential(double, double, unsigned int, unsigned int);
     
+    WaveFunction calculateWaveFunction(double);
+    WaveFunction internalWaveFunction(double);
+    WaveFunction externalWaveFunction(double);
+    
     System(); //explicitly disallow unwanted default constructor (Meyers item 6)
   public:
     ~System(){
@@ -64,5 +71,5 @@ class System{
       OpticalPotential op, NonLocalOpticalPotential nlop, int basis_size,
       double step, double max,matrix<CouplingPotential> coupling);
     
-    void waveFunction(boost::filesystem::ofstream& outFile);
+    void waveFunctions(boost::filesystem::ofstream& outFile);
 };

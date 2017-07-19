@@ -20,11 +20,8 @@ Channel::Channel(const double ec, const int l_, const double m_, const double j_
 }
 
 /*Returns the potential due to the centrifugal term in the Hamiltonian*/
-double Channel::central_potential(double R)const
-{
-	double constant = (pow(hbarc,2)/(2.0*mass_unit*mu));
-
-	return constant*((l*(l+1.0))/(R*R));
+double Channel::central_potential(double R)const{
+	return (pow(hbarc,2)/(2.0*mass_unit*mu))*((l*(l+1.0))/(R*R));
 }
 
 //returns the wave number of the channel with respect to

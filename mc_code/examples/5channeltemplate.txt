@@ -5,8 +5,8 @@
 ;output file will be stored in the "output" directory 
 output_file = 5c_wave 
 ;note: you must have a separate section for each channel 
- num_channels = 5 
-entrance_channel = 1 
+num_channels = 5 
+entrance_channel = 2
 
 [Numerical]
 Projectile_mass_number = 1
@@ -18,12 +18,13 @@ Target_proton_number = 4
 ;E (MeV) 
 Projectile_energy = 30
 
-Basis_size = 60
+Basis_size = 300
 Step_size = 0.01
 R_max = 100
 
 ;a (fm)
 Channel_radius = 60
+Coulomb_radius = 2.5
 
 [local]
 Vv = 53
@@ -83,26 +84,31 @@ awso = 1
 
 [Channel1]
 Angular_momentum = 0
+Spin = .5
 Total_angular_momentum = .5
 Energy = 0
 
 [Channel2]
 Angular_momentum = 1
+Spin = -.5
 Total_angular_momentum = .5
 Energy = 0
 
 [Channel3]
 Angular_momentum = 2
+Spin = -.5
 Total_angular_momentum = 1.5
 Energy = 0
 
 [Channel4]
 Angular_momentum = 2
+Spin = -1.5
 Total_angular_momentum = .5
 Energy = 0
 
 [Channel5]
 Angular_momentum = 3
+Spin = -1.5
 Total_angular_momentum = 1.5
 Energy = 0
 
