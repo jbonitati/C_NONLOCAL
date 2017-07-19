@@ -110,7 +110,8 @@ void loadSystem(){
     for(int i = 1; i <= num_channels; i++){
       channels.push_back(Channel(
         pt.get<double>("Channel" + boost::lexical_cast<std::string>(i) + ".Energy"), 
-        pt.get<int>("Channel" + boost::lexical_cast<std::string>(i) + ".Angular_momentum"), 
+        pt.get<int>("Channel" + boost::lexical_cast<std::string>(i) + ".Angular_momentum"),
+        pt.get<double>("Channel" + boost::lexical_cast<std::string>(i) + ".Spin"), 
         pt.get<double>("Channel" + boost::lexical_cast<std::string>(i) + ".Total_angular_momentum"),
         mu, E, a_size, targ, proj));
     }

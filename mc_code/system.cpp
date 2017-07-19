@@ -9,8 +9,10 @@
 #include "potential.h"
 #include "constants.h"
 #include <boost/timer/timer.hpp>
+#include <boost/math/special_functions/round.hpp>
 
 using namespace boost::numeric::ublas;
+using boost::math::iround;
 using namespace arma; //for cx_double typedef
 
 
@@ -192,13 +194,16 @@ void System::umatrixCalc(){
 //channel in the specified file
 void System::waveFunction(boost::filesystem::ofstream& file){
   boost::timer::auto_cpu_timer t;
-  std::vector<WaveFunction> wfvalues;
-  wfvalues.reserve(std::floor(r_max / step_size) + 1);
+  int num_values = iround(r_max / step_size) + 1;
+  int inner_size = (a < r_max) ? (iround(a / step_size)+1) : num_values;
+  WaveFunction wfvalues[num_values];
   
-  double r;
-  std::cout << 0;
-  for(r = 0; r < a && r <= r_max; r += step_size){ 
-    std::cout << "\rradius: " << r << std::flush;   
+  double r = 0;
+  //std::cout << "radius: " << r;
+  #pragma omp parallel for
+  for(int i = 0; i < inner_size; i++){ 
+    r = i*step_size;
+    //std::cout << "\rradius: " << r << std::flush;   
     //file << r;
     WaveFunction wf(r);
     for(unsigned int c = 0; c < channels.size(); c++){
@@ -258,7 +263,7 @@ void System::waveFunction(boost::filesystem::ofstream& file){
       //file << ", " << std::real(sum);
       wf.add(std::real(sum));
     }
-    wfvalues.push_back(wf);
+    wfvalues[iround(r / step_size)] = wf;
   }
   
   //now print the external wave function calculated from coulomb scattering
@@ -308,7 +313,7 @@ void System::waveFunction(boost::filesystem::ofstream& file){
       //file << ", " << std::real(wfvalue);
       wf.add(std::real(wfvalue));
     }
-    wfvalues.push_back(wf);
+    wfvalues[iround(r / step_size)] = wf;
   
    r += step_size; 
   }
@@ -321,8 +326,8 @@ void System::waveFunction(boost::filesystem::ofstream& file){
     file << ", Channel " << i;
   }
   file << std::endl;
-  for(std::vector<WaveFunction>::iterator it = wfvalues.begin(); it != wfvalues.end(); it++){
-    file << (*it);
+  for(int i = 0; i < num_values; i++){
+    file << wfvalues[i];
     //file << (*it).getR() << ", " << pot.totalPotential((*it).getR(), targ, &channels[0]) << std::endl;
   }
 }

@@ -16,7 +16,7 @@ class Channel{
     double whittaker(double, double, double);//method to calculate general whittaker function
     
   public:
-    Channel(const double ec, const int l_, const double j_,
+    Channel(const double ec, const int l_, const double m_, const double j_,
     const double mu_, double energy_, double a, Particle targ, Particle proj);
     ~Channel(){ }
     

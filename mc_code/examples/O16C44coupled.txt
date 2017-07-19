@@ -23,7 +23,7 @@ Projectile_energy = 44
 
 Basis_size = 100
 Step_size = .1
-R_max = 17
+R_max = 20
 
 ;a (fm)
 Channel_radius = 14
@@ -33,12 +33,14 @@ Channel_radius = 14
 ;in each name
 [Channel1]
 Angular_momentum = 30
+Spin = 0
 Total_angular_momentum = 30
 Energy = 0
 
 [Channel2]
 Angular_momentum = 30
-Total_angular_momentum = 32
+Spin = 2
+Total_angular_momentum = 30
 Energy = 1.156
 
 ;coupling constants

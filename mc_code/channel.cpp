@@ -10,9 +10,9 @@
 //uses spin = total_angular_momentum - angular_momentum
 //sets the bloch constant to 0 for open channels or the logarithmic derivative
 // of the whittaker function for closed channels
-Channel::Channel(const double ec, const int l_, const double j_,
+Channel::Channel(const double ec, const int l_, const double m_, const double j_,
   const double mu_, double energy_, double a, Particle targ, Particle proj):
-    E(ec), l(l_), j(j_), m(j_ - l_), mu(mu_), b(0), energy(energy_){ 
+    E(ec), l(l_), j(j_), m(m_), mu(mu_), b(0), energy(energy_){ 
     if(energy < ec){
       double kc = getKc();
       b = 2*kc*a*whittaker_prime(2*kc*a, targ, proj)/whittaker(2*kc*a, targ, proj);

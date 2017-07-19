@@ -44,7 +44,8 @@ Step_size = 0.01\n\
 R_max = 20\n\
 \n\
 ;a (fm)\n\
-Channel_radius = 10\n\n"
+Channel_radius = 10\n\n\
+Coulomb_radius = 10\n\n"
 
 LOCAL = "[local]\n\
 Vv = 0\n\
@@ -110,6 +111,7 @@ f.write(LOCAL)
 f.write(NONLOCAL)
 
 CHANNEL = "Angular_momentum = 0\n\
+Spin = 0\n\
 Total_angular_momentum = 0\n\
 Energy = 0\n\n"
 

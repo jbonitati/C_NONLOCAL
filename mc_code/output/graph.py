@@ -11,7 +11,7 @@ import time
 from shutil import copyfile
 
 data = pd.read_csv(sys.argv[1], index_col=0)
-data.plot(grid = True)
+data.plot(subplots = True,grid = True)
 plt.legend(loc='best')
 plt.xlabel('r (fm)')
 plt.ylabel('u(r)')
