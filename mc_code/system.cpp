@@ -48,6 +48,21 @@ System::System(const double a_size, double e,
   std::cout << "\nu_ext(a):";
   for(unsigned int i = 0; i < c.size(); i++) std::cout << externalWaveFunction(i,a);
   std::cout << std::endl;
+  
+  /*
+  double h = 0.01;
+  std::cout << "u_int'(a):";
+  for(unsigned int i = 0; i < c.size(); i++){
+    std::cout << 
+    (internalWaveFunction(i,a-h) + internalWaveFunction(i,a))/h;
+  }
+  std::cout << "\nu_ext'(a):";
+  for(unsigned int i = 0; i < c.size(); i++){
+    std::cout << 
+    (externalWaveFunction(i,a-h) + externalWaveFunction(i,a))/h;
+  }
+  std::cout << std::endl;
+  */
 }
 
 
@@ -188,6 +203,10 @@ void System::umatrixCalc(){
   }
   //std::cout << zomatrix << zimatrix;
   umatrix = (arma::inv(zomatrix)*zimatrix);
+  for(unsigned int c = 0; c < channels.size(); c++){
+    for(unsigned int cprime = 0; cprime < channels.size(); cprime++)
+      umatrix(c,cprime) *= sqrt(channels[cprime].getKc() / channels[c].getKc());
+  }
 }
 
 //Calculates the wave function for channel c at value r
@@ -195,10 +214,9 @@ cx_double System::internalWaveFunction(unsigned int c, double r){
 
   //Channel * c1 = &channels[c];
   //double vc1 = c1->getVc();
-  //double kc1 = c1->getKc();
+  //double kc0 = channels[entrance_channel].getKc();
   
   //compute partial wave function u^int_c(c0)(r)
-  //sum contains the coefficient calculated over all open channels
   cx_double wfvalue = 0;
   cx_double oval, ival, opval, ipval;
   

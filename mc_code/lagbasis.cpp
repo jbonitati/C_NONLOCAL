@@ -38,6 +38,7 @@ void LagBasis::gauleg(const double x1, const double x2, int n)
 }
 
 //returns the value phi_i(r) where phi_i is the i^th lagrange function
+//must have |2*r/a - 1| <= 1
 double LagBasis::phi(int i, double r)const{
   int N = size;
   if (r==a*xi[i-1])
