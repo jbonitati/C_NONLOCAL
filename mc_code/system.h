@@ -56,8 +56,8 @@ class System{
     double couplingPotential(double, double, unsigned int, unsigned int);
     
     WaveFunction calculateWaveFunction(double);
-    WaveFunction internalWaveFunction(double);
-    WaveFunction externalWaveFunction(double);
+    cx_double internalWaveFunction(unsigned int, double);
+    cx_double externalWaveFunction(unsigned int, double);
     
     System(); //explicitly disallow unwanted default constructor (Meyers item 6)
   public:

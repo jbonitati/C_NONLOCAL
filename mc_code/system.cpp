@@ -43,8 +43,11 @@ System::System(const double a_size, double e,
   
   //std::cout << "The following matrix should be identity if using real potential:" << std::endl;
   //std::cout << umatrix.t()*umatrix << std::endl;
-  std::cout << "u_int(a):" << internalWaveFunction(a);
-  std::cout << "u_ext(a):" << externalWaveFunction(a) << std::endl;
+  std::cout << "u_int(a):";
+  for(unsigned int i = 0; i < c.size(); i++) std::cout << internalWaveFunction(i,a);
+  std::cout << "\nu_ext(a):";
+  for(unsigned int i = 0; i < c.size(); i++) std::cout << externalWaveFunction(i,a);
+  std::cout << std::endl;
 }
 
 
@@ -56,7 +59,7 @@ double System::couplingPotential(double r1, double r2,
 }
 
 void System::cmatrixCalc(){
-  boost::timer::auto_cpu_timer t;
+  boost::timer::auto_cpu_timer t("C matrix time: %w sec real, %t sec CPU\n");
   //the C matrix is made up of a different matrix for each pair of channels
   int N = basis_size;
   
@@ -125,13 +128,13 @@ void System::cmatrixCalc(){
 
 /*calculates the inverse of the C matrix*/
 void System::invertCmatrix(){
-  boost::timer::auto_cpu_timer t;
+  boost::timer::auto_cpu_timer t("C matrix inversion time: %w sec real, %t sec CPU\n");
   invcmatrix = arma::inv(cmatrix);
 }
 
 /*calculates the rmatrix from the inverse C matrix*/
 void System::rmatrixCalc(){
-  boost::timer::auto_cpu_timer t;
+  boost::timer::auto_cpu_timer t("R matrix time: %w sec real, %t sec CPU\n");
   for(unsigned int c = 0; c < channels.size(); c++){
     Channel * c1 = &channels[c];
     for(unsigned int cprime = 0; cprime < channels.size(); cprime++){
@@ -151,7 +154,7 @@ void System::rmatrixCalc(){
 
 //calculates and returns the collision matrix from the R matrix
 void System::umatrixCalc(){
-  boost::timer::auto_cpu_timer t;
+  boost::timer::auto_cpu_timer t("U matrix time: %w sec real, %t sec CPU\n");
   arma::cx_mat zimatrix(channels.size(),channels.size(), arma::fill::zeros);
   arma::cx_mat zomatrix(channels.size(),channels.size(), arma::fill::zeros);
   cx_double ovalue, ivalue, opvalue, ipvalue;//, ovalue2, ivalue2, opvalue2, ipvalue2;
@@ -187,118 +190,116 @@ void System::umatrixCalc(){
   umatrix = (arma::inv(zomatrix)*zimatrix);
 }
 
-//Calculates the wave function for all channels at r < a
-WaveFunction System::internalWaveFunction(double r){
+//Calculates the wave function for channel c at value r
+cx_double System::internalWaveFunction(unsigned int c, double r){
+
+  //Channel * c1 = &channels[c];
+  //double vc1 = c1->getVc();
+  //double kc1 = c1->getKc();
+  
+  //compute partial wave function u^int_c(c0)(r)
+  //sum contains the coefficient calculated over all open channels
+  cx_double wfvalue = 0;
+  cx_double oval, ival, opval, ipval;
+  
+  for(unsigned int cprime = 0;
+    cprime < channels.size() && channels[cprime].isOpen();
+    cprime++)
+  {
+    Channel * c2 = &channels[cprime];
+  
+    double kc = c2->getKc();
+    //double vc = c2->getVc();
+    double mu = c2->getMu();
+    c2->io_coulomb_functions(kc*a, targ, proj, 
+      &ival, &oval, &ipval, &opval);
+    
+    cx_double coeff = nrmlz*hbarc*hbarc*kc
+      /(2*mass_unit*mu);//-*sqrt(vc1));
+    cx_double outersum = 
+      -1.0 *coeff*umatrix(cprime, entrance_channel)*opval;
+    if(cprime == entrance_channel)
+      outersum += coeff*ipval;
+    if(c2->getB() != 0)
+      outersum += -1.0*c2->getB()/a * externalWaveFunction(cprime,a);
+
+    arma::rowvec phir = lagrangeBasis.get_phi_r(r);
+    arma::cx_mat cinv = invcmatrix.submat(c*basis_size, cprime*basis_size, 
+        (c+1)*basis_size - 1, (cprime + 1)*basis_size - 1);
+    arma::vec phia = lagrangeBasis.get_phi_a();
+    cx_double innersum = arma::as_scalar(phir*cinv*phia);
+    
+    wfvalue += outersum*innersum;
+    
+  }
+  return wfvalue;
+}
+
+//Calculates the wave function for channel c at position r
+cx_double System::externalWaveFunction(unsigned int c, double r){
+  //double k0 = channels[entrance_channel].getKc();
   WaveFunction wf(r, channels.size());
-  for(unsigned int c = 0; c < channels.size(); c++){
-    Channel * c1 = &channels[c];
-    double vc1 = c1->getVc();
-    double kc1 = c1->getKc();
+  cx_double oval, ival, opval, ipval;
+  Channel * c1 = &channels[c];
+  double kc = c1->getKc();
+  //double vc = c1->getVc();
+  //double etac = c1->getEta(energy, targ, proj);
+  //double mu = c1->getMu();
+  c1->io_coulomb_functions(kc*r, targ, proj, 
+    &ival, &oval, &ipval, &opval);
+  cx_double wfvalue;
+  if(energy >= c1->getE()){
+    //Open Channel
     
-    //compute partial wave function u^int_c(c0)(r)
-    //sum contains the coefficient calculated over all open channels
-    cx_double wfvalue = 0;
-    cx_double oval, ival, opval, ipval;
+    double coeff = 1.0;//sqrt(k0/kc)*1.0;///sqrt(vc);
+    wfvalue = -1.0 *coeff*umatrix(c, entrance_channel)*oval;
+    if(c == entrance_channel)
+      wfvalue += coeff*ival;
+      
+  }else{
+    //Closed Channel
     
+    double coeff = 1.0/c1->whittaker(2*kc*a, targ, proj);
+    cx_double sum = 0;
     for(unsigned int cprime = 0; 
       cprime < channels.size() && channels[cprime].isOpen();
       cprime++)
     {
       Channel * c2 = &channels[cprime];
-    
-      double kc = c2->getKc();
-      //double vc = c2->getVc();
-      double mu = c2->getMu();
-      c2->io_coulomb_functions(kc*a, targ, proj, 
-        &ival, &oval, &ipval, &opval);
-      
-      cx_double coeff = nrmlz*hbarc*hbarc*kc
-        /(2*mass_unit*mu);//-*sqrt(vc1));
-      cx_double outersum = 
-        -1.0 *coeff*umatrix(cprime, entrance_channel)*opval;
+      cx_double oval2, ival2, opval2, ipval2;
+      double kc2 = c2->getKc();
+      double mu2 = c2->getMu();
+      c2->io_coulomb_functions(kc2*a, targ, proj, 
+        &ival2, &oval2, &ipval2, &opval2);
+      cx_double sumcoeff = sqrt(mass_unit*mu2*kc2/hbarc)*a*rmatrix(c,cprime);
+      sum += -1.0*sumcoeff*umatrix(cprime,entrance_channel)*opval2;
       if(cprime == entrance_channel)
-        outersum += coeff*ipval;
-      if(c2->getB() != 0)
-        outersum += -1.0*c2->getB()/a * externalWaveFunction(a);
-
-      arma::rowvec phir = lagrangeBasis.get_phi_r(r);
-      arma::cx_mat cinv = invcmatrix.submat(c*basis_size, cprime*basis_size, 
-          (c+1)*basis_size - 1, (cprime + 1)*basis_size - 1);
-      arma::vec phia = lagrangeBasis.get_phi_a();
-      cx_double innersum = arma::as_scalar(phir*cinv*phia);
-      
-      wfvalue += outersum*innersum;
-      
+        sum += sumcoeff*ipval2;
     }
-    wf.add(wfvalue);
+    wfvalue = coeff*sum*c1->whittaker(2*kc*r, targ, proj);
   }
-  return wf;
-}
-
-//Calculates the wave function for all channels at r > a
-WaveFunction System::externalWaveFunction(double r){
-  double k0 = channels[entrance_channel].getKc();
-  WaveFunction wf(r, channels.size());
-  for(unsigned int c = 0; c < channels.size(); c++){
-    cx_double oval, ival, opval, ipval;
-    Channel * c1 = &channels[c];
-    double kc = c1->getKc();
-    double vc = c1->getVc();
-    //double etac = c1->getEta(energy, targ, proj);
-    //double mu = c1->getMu();
-    c1->io_coulomb_functions(kc*r, targ, proj, 
-      &ival, &oval, &ipval, &opval);
-    cx_double wfvalue;
-    if(energy >= c1->getE()){
-      //Open Channel
-      
-      double coeff = 1.0;//sqrt(k0/kc)*1.0;///sqrt(vc);
-      wfvalue = -1.0 *coeff*umatrix(c, entrance_channel)*oval;
-      if(c == entrance_channel)
-        wfvalue += coeff*ival;
-        
-    }else{
-      //Closed Channel
-      
-      double coeff = 1.0/c1->whittaker(2*kc*a, targ, proj);
-      cx_double sum = 0;
-      for(unsigned int cprime = 0; 
-        cprime < channels.size() && channels[cprime].isOpen();
-        cprime++)
-      {
-        Channel * c2 = &channels[cprime];
-        cx_double oval2, ival2, opval2, ipval2;
-        double kc2 = c2->getKc();
-        double mu2 = c2->getMu();
-        c2->io_coulomb_functions(kc2*a, targ, proj, 
-          &ival2, &oval2, &ipval2, &opval2);
-        cx_double sumcoeff = sqrt(mass_unit*mu2*kc2/hbarc)*a*rmatrix(c,cprime);
-        sum += -1.0*sumcoeff*umatrix(cprime,entrance_channel)*opval2;
-        if(cprime == entrance_channel)
-          sum += sumcoeff*ipval2;
-      }
-      wfvalue = coeff*sum*c1->whittaker(2*kc*r, targ, proj);
-    }
-    wfvalue *= nrmlz;
-    wf.add(wfvalue);
-  }
-  return wf;
+  wfvalue *= nrmlz;
+  return wfvalue;
 }
 
 //calculates the wavefunction for all channels at distance r
 //Returns the wave function in WaveFunction object, which
 // contains the distance  r  and values for each channel
 WaveFunction System::calculateWaveFunction(double r){
-  if(r < a){
-    return internalWaveFunction(r);
-  }else{
-    return externalWaveFunction(r);
+  WaveFunction wf(r);
+  for(unsigned int c = 0; c < channels.size(); c++){
+    if(r < a){
+      wf.add(internalWaveFunction(c,r));
+    }else{
+      wf.add(externalWaveFunction(c,r));
+    }
   }
+  return wf;
 }
 
 //calculates the wave functions for each channel and stores them in file
 void System::waveFunctions(boost::filesystem::ofstream& file){
-  boost::timer::auto_cpu_timer t;
+  boost::timer::auto_cpu_timer t("Wave Function calculation time: %w sec real, %t sec CPU\n");
   int num_values = iround(r_max / step_size) + 1;
   std::vector<WaveFunction> wfvalues(num_values);
   
@@ -308,7 +309,6 @@ void System::waveFunctions(boost::filesystem::ofstream& file){
     wfvalues[i] = calculateWaveFunction(i*step_size);
   }
   
-  std::cout << std::endl;
   std::cout << "Printing Wave functions to file..." << std::endl;
   
   file << "r";
@@ -323,6 +323,8 @@ void System::waveFunctions(boost::filesystem::ofstream& file){
   }
 }
 
+//calculates the total potential at all points used in wave function calculations
+// and stores them in file
 void System::plotPotential(boost::filesystem::ofstream& file){
   file << "r Re(potential) Im(potential) Coupling" <<std::endl;
   for(double r = step_size; r <= r_max; r+= step_size){

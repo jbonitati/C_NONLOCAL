@@ -54,9 +54,6 @@ void Channel::io_coulomb_functions(double x, Particle targ, Particle proj,
   arma::cx_double *I1, arma::cx_double *O1, arma::cx_double *Ip1, arma::cx_double *Op1)const{
 
   double etac = getEta(targ,proj);
-    
-  //double hbarx = hbarc*hbarc/(2*mass_unit*mu);
-  //double q = sqrt(energy/hbarx);
   
   gsl_sf_result F1,G1,Fp1,Gp1;
   double exp_F1, exp_G1;
@@ -69,7 +66,7 @@ void Channel::io_coulomb_functions(double x, Particle targ, Particle proj,
   *Ip1 = Gp - I*Fp;
   *O1 = G + I*F;
   *Op1 = Gp + I*Fp;
-  //removed factor of "q" from the derivatives
+  //removed a factor of k from the derivatives that shouldn't have been there
   
 }
 
