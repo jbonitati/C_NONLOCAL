@@ -163,13 +163,17 @@ int main()
   std::cout << "Initializing system..." << std::endl;
   loadSystem();
   
-  boost::filesystem::path filePath("output/" + filename + ".csv");
+  boost::filesystem::path filePath("output/" + filename + ".txt");
   boost::filesystem::ofstream outfile(filePath);
   std::cout << "Creating output file: " << filePath << std::endl;
   
   std::cout << "Calculating wave functions..." << std::endl;
   mySystem->waveFunctions(outfile);
   
+  outfile.close();
+  
+  outfile.open("output/" + filename + "potential.txt");
+  mySystem->plotPotential(outfile);
   outfile.close();
   
   delete mySystem;

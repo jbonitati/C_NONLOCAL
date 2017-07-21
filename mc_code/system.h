@@ -71,5 +71,6 @@ class System{
       OpticalPotential op, NonLocalOpticalPotential nlop, int basis_size,
       double step, double max,matrix<CouplingPotential> coupling);
     
-    void waveFunctions(boost::filesystem::ofstream& outFile);
+    void waveFunctions(boost::filesystem::ofstream&);
+    void plotPotential(boost::filesystem::ofstream&);
 };

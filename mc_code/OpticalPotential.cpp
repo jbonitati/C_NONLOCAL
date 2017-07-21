@@ -28,7 +28,7 @@ arma::cx_double OpticalPotential::totalPotential
   return Volume_potential(radius, p) 
     + Surface_potential(radius, p) 
     + Spin_orbit_potential(radius, p, c);
-  return Gauss_potential(73.8,2.70).getValue(radius);
+  //return Gauss_potential(73.8,2.70).getValue(radius);
 }
 
 struct my_f_params {int a; double b;};
@@ -83,21 +83,15 @@ arma::cx_double NonLocalOpticalPotential::totalPotential
   double z =2.0*r1*r2/(beta*beta);
   arma::cx_double nonlocal_part;
   //for large z, we use an approximation
-  if(abs(z) >= 500){
+  if(abs(z) >= 700){
     nonlocal_part = 1.0/(pow(PI,0.5)*beta) * exp(-1.0*pow((r1-r2)/beta,2.0));
   }else{
-    arma::cx_double approx_bessel,
-      c_n=2.0*pow(1.0*I,l)*z,
-      c_=1.0/(2.0*pow(1.0*I,l));
-
-    approx_bessel =c_*integration(l,z);
-
-    arma::cx_double kl;
-
-    kl=c_n*approx_bessel;
+    //numerically compute the bessel function at (-i*z)
+    arma::cx_double approx_bessel =1.0/(2.0*pow(1.0*I,l))*integration(l,z);
     
-    double exponent=(pow(r1,2.0)+pow(r2,2.0))/(beta*beta);
-    nonlocal_part= kl * 1.0/(beta*pow(PI,0.5))*(exp(-1*exponent));
+    double exponent=(r1*r1 + r2*r2)/(beta*beta);
+    nonlocal_part= 2.0*pow(1.0*I,l)*z*approx_bessel 
+      * 1.0/(beta*pow(PI,0.5))*(exp(-1*exponent));
   }
     
   return local_part * nonlocal_part;

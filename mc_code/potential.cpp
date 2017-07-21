@@ -14,12 +14,12 @@ double D_Potential::getValue(double R, Particle p)const{
 
 double SO_Potential::getValue(double R, Particle p, Channel * c)const{
   double Rr = r;//*pow(p.getM(),1.0/3.0);
-  double l = c->getL();
+  int l = c->getL();
   double j = c->getJ();
   double m = c->getSpin();
   
   double Vspin=(j*(j+1.0)-l*(l+1.0)-m*(m+1.0))
-  *(coeff/(R))*(pow(hbarc,2))
+  *(coeff/(R*a))*(pow(hbarc/pion_mass,2))
   *(exp((R-Rr)/a))/(pow((1.0+exp((R-Rr)/a)),2.0));
 
   return Vspin;

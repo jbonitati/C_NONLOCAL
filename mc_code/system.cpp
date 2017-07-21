@@ -26,6 +26,7 @@ System::System(const double a_size, double e,
   
   std::cout << "Calculating C matrix..." << std::endl;
   cmatrixCalc();
+  //std::cout << cmatrix;
   
   std::cout << "Calculating inverse C matrix..." << std::endl;
   invertCmatrix();
@@ -42,7 +43,8 @@ System::System(const double a_size, double e,
   
   //std::cout << "The following matrix should be identity if using real potential:" << std::endl;
   //std::cout << umatrix.t()*umatrix << std::endl;
-  
+  std::cout << "u_int(a):" << internalWaveFunction(a);
+  std::cout << "u_ext(a):" << externalWaveFunction(a) << std::endl;
 }
 
 
@@ -191,6 +193,7 @@ WaveFunction System::internalWaveFunction(double r){
   for(unsigned int c = 0; c < channels.size(); c++){
     Channel * c1 = &channels[c];
     double vc1 = c1->getVc();
+    double kc1 = c1->getKc();
     
     //compute partial wave function u^int_c(c0)(r)
     //sum contains the coefficient calculated over all open channels
@@ -210,17 +213,20 @@ WaveFunction System::internalWaveFunction(double r){
         &ival, &oval, &ipval, &opval);
       
       cx_double coeff = nrmlz*hbarc*hbarc*kc
-        /(2*mass_unit*mu*sqrt(vc1));
+        /(2*mass_unit*mu);//-*sqrt(vc1));
       cx_double outersum = 
         -1.0 *coeff*umatrix(cprime, entrance_channel)*opval;
       if(cprime == entrance_channel)
         outersum += coeff*ipval;
+      if(c2->getB() != 0)
+        outersum += -1.0*c2->getB()/a * externalWaveFunction(a);
 
       arma::rowvec phir = lagrangeBasis.get_phi_r(r);
       arma::cx_mat cinv = invcmatrix.submat(c*basis_size, cprime*basis_size, 
           (c+1)*basis_size - 1, (cprime + 1)*basis_size - 1);
       arma::vec phia = lagrangeBasis.get_phi_a();
       cx_double innersum = arma::as_scalar(phir*cinv*phia);
+      
       wfvalue += outersum*innersum;
       
     }
@@ -231,6 +237,7 @@ WaveFunction System::internalWaveFunction(double r){
 
 //Calculates the wave function for all channels at r > a
 WaveFunction System::externalWaveFunction(double r){
+  double k0 = channels[entrance_channel].getKc();
   WaveFunction wf(r, channels.size());
   for(unsigned int c = 0; c < channels.size(); c++){
     cx_double oval, ival, opval, ipval;
@@ -245,7 +252,7 @@ WaveFunction System::externalWaveFunction(double r){
     if(energy >= c1->getE()){
       //Open Channel
       
-      double coeff = 1.0/sqrt(vc);
+      double coeff = 1.0;//sqrt(k0/kc)*1.0;///sqrt(vc);
       wfvalue = -1.0 *coeff*umatrix(c, entrance_channel)*oval;
       if(c == entrance_channel)
         wfvalue += coeff*ival;
@@ -306,10 +313,28 @@ void System::waveFunctions(boost::filesystem::ofstream& file){
   
   file << "r";
   for(unsigned int i = 1; i <= channels.size(); i++){
-    file << ", Channel " << i;
+    file << " Channel_" << i << "(Re)";
+    file << " Channel_" << i << "(Im)";
+    file << " Channel_" << i << "(abs)";
   }
   file << std::endl;
   for(std::vector<WaveFunction>::iterator it = wfvalues.begin(); it!= wfvalues.end(); it++){
     file << (*it);
   }
+}
+
+void System::plotPotential(boost::filesystem::ofstream& file){
+  file << "r Re(potential) Im(potential) Coupling" <<std::endl;
+  for(double r = step_size; r <= r_max; r+= step_size){
+    file << r << " " 
+      << std::real(pot.totalPotential(r, targ, &channels[0]) 
+        + nlpot.totalPotential(r,r,targ,&channels[0]))
+      << " "
+      << std::imag(pot.totalPotential(r, targ, &channels[0]) 
+        + nlpot.totalPotential(r,r,targ,&channels[0]))
+      << " "
+      << couplingPotential(r,r,0,1)
+      << std::endl;
+  }
+  
 }

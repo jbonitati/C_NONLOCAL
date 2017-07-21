@@ -18,37 +18,39 @@ Target_proton_number = 4
 Coulomb_radius = 2.5
 
 ;E (MeV)
-Projectile_energy = 5
+Projectile_energy = 10
 
-Basis_size = 60
-Step_size = 0.1
-R_max = 30.0
+Basis_size = 100
+Step_size = .1
+R_max = 20
 
 ;a (fm)
-Channel_radius = 10
+Channel_radius = 15
 
 ;To add more channels, change the "num_channels" parameter in Settings,
 ;and copy and paste the following Channel sections, changing the number
 ;in each name
 [Channel1]
 Angular_momentum = 0
-Total_angular_momentum = 0.5
+Spin = .5
+Total_angular_momentum = .5
 Energy = 0
 
 [Channel2]
-Angular_momentum = 1
-Total_angular_momentum = 0.5
+Angular_momentum = 2
+Spin = .5
+Total_angular_momentum = .5
 Energy = 3.368
 
 ;coupling constants
 [coupling12]
-beta = .65
+beta = .6
 V = 50
 r = 2.5
 a = .65
 
 [local]
-Vv = 50
+Vv = 0
 rv = 2.5
 av = .65
 
@@ -57,7 +59,7 @@ rwv = 8.363
 awv = .5803
 
 
-Vd = 0  
+Vd = 0
 rvd = 1.25
 avd = 0.25
 
@@ -66,26 +68,26 @@ rwd = 1.25
 awd = 0.25
 
 Vso = 0
-Rso = 2.483
-aso = 0.25
+Rso = 2.5
+aso = 0.65
 
 Wso = 0
-Rwso = 1.25
-awso = 0.25
+Rwso = 2.5
+awso = 0.65
 
 
 
 [Non_local]
 ;beta = range of nonlocality (0 if using local potential only)
-beta = 0
+beta = .6
 
 Vv = 0
-rv = 1.25
-av = 0.25
+rv = 2.5
+av = 0.65
 
 Wv = 0
-rwv = 1.22
-awv = 0.47
+rwv = 2.5
+awv = .65
 
 
 Vd = 0
