@@ -13,6 +13,7 @@ from shutil import copyfile
 data = pd.read_csv(sys.argv[1],\
   index_col=0,\
   delim_whitespace=True)
+plt.hold(True)
 data.plot(subplots = True,grid = True)
 plt.legend(loc='best')
 plt.xlabel('r (fm)')
@@ -30,3 +31,4 @@ else:
   print "Plot saved to figures/%f.png"%name
 plt.show()
 
+plt.hold(False)

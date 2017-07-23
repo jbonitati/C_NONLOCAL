@@ -1,5 +1,6 @@
-#include "particle.h"
+
 #include <cmath>
+#include "particle.h"
 #include "constants.h"
 
 /*Returns the Coulomb potential for particles at distance R*/

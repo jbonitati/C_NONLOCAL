@@ -1,10 +1,10 @@
 #include <cmath>
-#include <gsl/gsl_sf.h>
-#include "system.h"
 #include <iostream>
 #include <vector>
 #include <boost/timer/timer.hpp>
 #include <boost/math/special_functions/round.hpp>
+
+#include "system.h"
 
 using namespace boost::numeric::ublas;
 using boost::math::iround;
@@ -41,15 +41,14 @@ System::System(const double a_size, double e,
   //if(channels.size() <= 4)
     std::cout << umatrix << std::endl;
   
-  //std::cout << "The following matrix should be identity if using real potential:" << std::endl;
-  //std::cout << umatrix.t()*umatrix << std::endl;
+  /*
+  std::cout << "The following matrix should be identity if using real potential:" << std::endl;
+  std::cout << umatrix.t()*umatrix << std::endl;
   std::cout << "u_int(a):";
   for(unsigned int i = 0; i < c.size(); i++) std::cout << internalWaveFunction(i,a);
   std::cout << "\nu_ext(a):";
   for(unsigned int i = 0; i < c.size(); i++) std::cout << externalWaveFunction(i,a);
   std::cout << std::endl;
-  
-  /*
   double h = 0.01;
   std::cout << "u_int'(a):";
   for(unsigned int i = 0; i < c.size(); i++){

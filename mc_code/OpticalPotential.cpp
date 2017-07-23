@@ -1,8 +1,8 @@
 #include <armadillo>
 #include <cmath>
-#include "OpticalPotential.h"
 #include <gsl/gsl_integration.h>
 #include <gsl/gsl_sf.h>
+#include "OpticalPotential.h"
 #include "constants.h"
 
 arma::cx_double OpticalPotential::Volume_potential

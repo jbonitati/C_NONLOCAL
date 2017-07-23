@@ -1,28 +1,10 @@
 #include "system.h"
 
-#include <gsl/gsl_multiroots.h>
-#include <gsl/gsl_math.h>
-#include <gsl/gsl_vector.h>
-#include <gsl/gsl_sf.h>
-#include <gsl/gsl_complex.h>
-#include <gsl/gsl_complex_math.h>
-#include <gsl/gsl_deriv.h>
-#include <gsl/gsl_sf_coupling.h>
-#include <gsl/gsl_eigen.h>
-#include <gsl/gsl_errno.h>
-
 #include <armadillo>
-
-#include <cstdlib>
-#include <cstdio>
 #include <iostream>
-#include <complex>
 #include <vector>
-#include <cmath>
-#include <cstring>
 #include <string>
 #include <fstream>
-#include <iomanip>
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/ini_parser.hpp>
@@ -54,7 +36,7 @@ void loadSystem(){
   int z1=pt.get<int>("Numerical.Projectile_proton_number");
   int z2=pt.get<int>("Numerical.Target_proton_number");
   double Nr=pt.get<double>("Numerical.Step_size");
-  double E = pt.get<double>("Numerical.Projectile_energy");
+  double E = pt.get<double>("Numerical.Total_energy");
   double R_max=pt.get<double>("Numerical.R_max");
   double rc = pt.get<double>("Numerical.Coulomb_radius");
 
@@ -172,10 +154,11 @@ int main()
   
   outfile.close();
   
-  outfile.open("output/" + filename + "potential.txt");
+  outfile.open("output/" + filename + "-potential.txt");
   mySystem->plotPotential(outfile);
   outfile.close();
   
+  //Must delete the mySystem object to prevent memory leakage!
   delete mySystem;
   return 0;
 }

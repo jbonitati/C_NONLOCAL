@@ -1,5 +1,4 @@
 #include <vector>
-#include <iostream>
 #include <armadillo>
 
 using namespace arma;

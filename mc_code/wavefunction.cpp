@@ -1,6 +1,5 @@
 #include "wavefunction.h"
 
-
 std::ostream& operator<<(std::ostream &os, const WaveFunction &wf){
   //prints "[radius] [Channel 1 wave function] [Channel 2 wave function], ..."
   os << wf.r;

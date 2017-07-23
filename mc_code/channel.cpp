@@ -1,6 +1,7 @@
 #include <cmath>
-#include <gsl/gsl_sf.h>
-#include <complex>
+#include <gsl/gsl_sf_coulomb.h>
+#include <gsl/gsl_sf_hyperg.h>
+#include <gsl/gsl_sf_result.h>
 #include <armadillo>
 #include "channel.h"
 #include "particle.h"
