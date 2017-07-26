@@ -2,10 +2,10 @@
 [Settings]
 ;output file will be stored in the "output" directory
 ;and given the .csv extension
-output_file = nbe10poster
+output_file = nbe10coupled
 
 ;note: you must have a separate section for each channel
-num_channels = 2
+num_channels = 1
 entrance_channel = 1
 
 [Numerical]
@@ -19,14 +19,14 @@ Target_proton_number = 4
 Coulomb_radius = 2.5
 
 ;E (MeV) in the center of mass frame
-Total_energy = 10
+Total_energy = 5
 
-Basis_size = 5000
-Step_size = 1.2
+Basis_size = 4000
+Step_size = .1
 R_max = 20
 
 ;a (fm)
-Channel_radius = 10
+Channel_radius = 6
 
 ;To add more channels, change the "num_channels" parameter in Settings,
 ;and copy and paste the following Channel sections, changing the number
@@ -45,18 +45,18 @@ Energy = 3.368
 
 ;coupling constants
 [coupling12]
-beta = .65
+beta = .4
 V = 50
 r = 2.5
 a = .5
 
 [local]
-Vv = 0
+Vv = 50
 rv = 2.5
 av = .5
 
 Wv = 0
-rwv = 7.26
+rwv = 2.5
 awv = .5
 
 
@@ -64,13 +64,13 @@ Vd = 0
 rvd = 1.25
 avd = 0.25
 
-Wd = 20
-rwd = 2.45
+Wd = 0 
+rwd = 1.389
 awd = 0.568
 
-Vso = 40
-Rso = 2.5
-aso = 0.735
+Vso = 0
+Rso = 1.16
+aso = 0.5
 
 Wso = 0
 Rwso = 1.25
@@ -80,10 +80,10 @@ awso = 0.53
 
 [Non_local]
 ;beta = range of nonlocality (0 if using local potential only)
-beta = .85
+beta = 0
 
-Vv = 50
-rv = 2.5
+Vv = 0
+rv = 1.156
 av = .739
 
 Wv = 0

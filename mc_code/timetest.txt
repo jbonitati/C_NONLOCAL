@@ -1,0 +1,91 @@
+5
+C matrix time: 0.000052 sec real, 0.000000 sec CPU
+C matrix inversion time: 0.017126 sec real, 0.040000 sec CPU
+R matrix time: 0.000037 sec real, 0.000000 sec CPU
+U matrix time: 0.002418 sec real, 0.010000 sec CPU
+Wave Function calculation time: 0.015332 sec real, 0.050000 sec CPU
+Total time: 0.038218 sec real, 0.110000 sec CPU
+10
+C matrix time: 0.000098 sec real, 0.000000 sec CPU
+C matrix inversion time: 0.004356 sec real, 0.010000 sec CPU
+R matrix time: 0.000038 sec real, 0.000000 sec CPU
+U matrix time: 0.000052 sec real, 0.000000 sec CPU
+Wave Function calculation time: 0.011378 sec real, 0.030000 sec CPU
+Total time: 0.019319 sec real, 0.040000 sec CPU
+20
+C matrix time: 0.000295 sec real, 0.000000 sec CPU
+C matrix inversion time: 0.000820 sec real, 0.010000 sec CPU
+R matrix time: 0.000075 sec real, 0.000000 sec CPU
+U matrix time: 0.000056 sec real, 0.000000 sec CPU
+Wave Function calculation time: 0.028282 sec real, 0.080000 sec CPU
+Total time: 0.036316 sec real, 0.110000 sec CPU
+40
+C matrix time: 0.000841 sec real, 0.010000 sec CPU
+C matrix inversion time: 0.002036 sec real, 0.010000 sec CPU
+R matrix time: 0.000150 sec real, 0.000000 sec CPU
+U matrix time: 0.000061 sec real, 0.000000 sec CPU
+Wave Function calculation time: 0.024174 sec real, 0.090000 sec CPU
+Total time: 0.030758 sec real, 0.120000 sec CPU
+80
+C matrix time: 0.007876 sec real, 0.030000 sec CPU
+C matrix inversion time: 0.026162 sec real, 0.020000 sec CPU
+R matrix time: 0.000509 sec real, 0.000000 sec CPU
+U matrix time: 0.000075 sec real, 0.000000 sec CPU
+Wave Function calculation time: 0.076924 sec real, 0.220000 sec CPU
+Total time: 0.125231 sec real, 0.290000 sec CPU
+160
+C matrix time: 0.012183 sec real, 0.050000 sec CPU
+C matrix inversion time: 0.012718 sec real, 0.040000 sec CPU
+R matrix time: 0.001924 sec real, 0.020000 sec CPU
+U matrix time: 0.000088 sec real, 0.000000 sec CPU
+Wave Function calculation time: 0.231417 sec real, 0.640000 sec CPU
+Total time: 0.263153 sec real, 0.760000 sec CPU
+320
+C matrix time: 0.050548 sec real, 0.180000 sec CPU
+C matrix inversion time: 0.108449 sec real, 0.350000 sec CPU
+R matrix time: 0.007670 sec real, 0.010000 sec CPU
+U matrix time: 0.000075 sec real, 0.000000 sec CPU
+Wave Function calculation time: 0.609324 sec real, 1.000000 sec CPU
+Total time: 0.784063 sec real, 1.570000 sec CPU
+640
+C matrix time: 0.339789 sec real, 0.640000 sec CPU
+C matrix inversion time: 0.488494 sec real, 1.650000 sec CPU
+R matrix time: 0.037129 sec real, 0.100000 sec CPU
+U matrix time: 0.000082 sec real, 0.000000 sec CPU
+Wave Function calculation time: 2.340262 sec real, 2.990000 sec CPU
+Total time: 3.226180 sec real, 5.460000 sec CPU
+1280
+C matrix time: 1.135666 sec real, 1.370000 sec CPU
+C matrix inversion time: 3.314220 sec real, 11.330000 sec CPU
+R matrix time: 0.117041 sec real, 0.440000 sec CPU
+U matrix time: 0.000076 sec real, 0.000000 sec CPU
+Wave Function calculation time: 9.155650 sec real, 10.900000 sec CPU
+Total time: 13.794823 sec real, 24.230000 sec CPU
+2000
+C matrix time: 2.523753 sec real, 2.510000 sec CPU
+C matrix inversion time: 11.959559 sec real, 40.480000 sec CPU
+R matrix time: 0.331221 sec real, 0.730000 sec CPU
+U matrix time: 0.000073 sec real, 0.000000 sec CPU
+Wave Function calculation time: 24.240411 sec real, 28.470000 sec CPU
+Total time: 39.260154 sec real, 72.780000 sec CPU
+3000
+C matrix time: 6.049345 sec real, 6.030000 sec CPU
+C matrix inversion time: 40.442851 sec real, 136.370000 sec CPU
+R matrix time: 0.694097 sec real, 1.060000 sec CPU
+U matrix time: 0.000072 sec real, 0.000000 sec CPU
+Wave Function calculation time: 60.868204 sec real, 70.230000 sec CPU
+Total time: 108.421193 sec real, 214.440000 sec CPU
+4000
+C matrix time: 12.220101 sec real, 12.150000 sec CPU
+C matrix inversion time: 94.246740 sec real, 310.940000 sec CPU
+R matrix time: 1.749685 sec real, 1.970000 sec CPU
+U matrix time: 0.000096 sec real, 0.000000 sec CPU
+Wave Function calculation time: 128.372196 sec real, 143.860000 sec CPU
+Total time: 237.272505 sec real, 470.040000 sec CPU
+5000
+C matrix time: 21.286695 sec real, 20.260000 sec CPU
+C matrix inversion time: 206.239802 sec real, 630.880000 sec CPU
+R matrix time: 3.997069 sec real, 3.600000 sec CPU
+U matrix time: 0.000108 sec real, 0.000000 sec CPU
+Wave Function calculation time: 277.239524 sec real, 251.120000 sec CPU
+Total time: 509.895971 sec real, 907.250000 sec CPU

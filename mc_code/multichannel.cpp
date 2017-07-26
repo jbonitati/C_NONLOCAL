@@ -140,7 +140,7 @@ void loadSystem(){
 
 int main()
 {
-  boost::timer::auto_cpu_timer t("Total time: %w sec real, %t sec CPU\n");
+  //boost::timer::auto_cpu_timer t("Total time: %w sec real, %t sec CPU\n");
   
   std::cout << "Initializing system..." << std::endl;
   loadSystem();
@@ -149,14 +149,16 @@ int main()
   boost::filesystem::ofstream outfile(filePath);
   std::cout << "Creating output file: " << filePath << std::endl;
   
-  std::cout << "Calculating wave functions..." << std::endl;
-  mySystem->waveFunctions(outfile);
+  //std::cout << "Calculating wave functions..." << std::endl;
+  //mySystem->waveFunctions(outfile);
+  std::cout << std::abs(mySystem->internalWaveFunction(0,1.2)) << std::endl;
+  
   
   outfile.close();
   
-  outfile.open("output/" + filename + "-potential.txt");
-  mySystem->plotPotential(outfile);
-  outfile.close();
+  //outfile.open("output/" + filename + "-potential.txt");
+  //mySystem->plotPotential(outfile);
+  //outfile.close();
   
   //Must delete the mySystem object to prevent memory leakage!
   delete mySystem;

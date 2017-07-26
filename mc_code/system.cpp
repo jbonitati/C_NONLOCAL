@@ -6,9 +6,9 @@
 
 #include "system.h"
 
-using namespace boost::numeric::ublas;
-using boost::math::iround;
-using namespace arma; //for cx_double typedef
+using namespace boost::numeric::ublas; //matrix
+using boost::math::iround; //iround
+using namespace arma; //cx_double
 
 
 System::System(const double a_size, double e,
@@ -232,13 +232,13 @@ cx_double System::internalWaveFunction(unsigned int c, double r){
       &ival, &oval, &ipval, &opval);
     
     cx_double coeff = nrmlz*hbarc*hbarc*kc
-      /(2*mass_unit*mu);//-*sqrt(vc1));
+      /(2*mass_unit*mu);//*sqrt(channels[c].getVc()));
     cx_double outersum = 
       -1.0 *coeff*umatrix(cprime, entrance_channel)*opval;
     if(cprime == entrance_channel)
       outersum += coeff*ipval;
-    if(c2->getB() != 0)
-      outersum += -1.0*c2->getB()/a * externalWaveFunction(cprime,a);
+    //if(c2->getB() != 0)
+    //  outersum += -1.0*c2->getB()/a * externalWaveFunction(cprime,a);
 
     arma::rowvec phir = lagrangeBasis.get_phi_r(r);
     arma::cx_mat cinv = invcmatrix.submat(c*basis_size, cprime*basis_size, 
@@ -268,7 +268,7 @@ cx_double System::externalWaveFunction(unsigned int c, double r){
   if(energy >= c1->getE()){
     //Open Channel
     
-    double coeff = 1.0;//sqrt(k0/kc)*1.0;///sqrt(vc);
+    double coeff = 1.0;///sqrt(c1->getVc());
     wfvalue = -1.0 *coeff*umatrix(c, entrance_channel)*oval;
     if(c == entrance_channel)
       wfvalue += coeff*ival;
@@ -328,16 +328,19 @@ void System::waveFunctions(boost::filesystem::ofstream& file){
   
   std::cout << "Printing Wave functions to file..." << std::endl;
   
-  file << "r";
-  for(unsigned int i = 1; i <= channels.size(); i++){
-    file << " Channel_" << i << "(Re)";
-    file << " Channel_" << i << "(Im)";
-    file << " Channel_" << i << "(abs)";
-  }
-  file << std::endl;
+  
+  //file << "r";
+  //for(unsigned int i = 1; i <= channels.size(); i++){
+    //file << " Channel_" << i << "(Re)";
+    //file << " Channel_" << i << "(Im)";
+  //  file << " Channel_" << i << "(abs)";
+  //}
+  //file << std::endl;
+  
   for(std::vector<WaveFunction>::iterator it = wfvalues.begin(); it!= wfvalues.end(); it++){
     file << (*it);
   }
+  
 }
 
 //calculates the total potential at all points used in wave function calculations
@@ -352,7 +355,7 @@ void System::plotPotential(boost::filesystem::ofstream& file){
       << std::imag(pot.totalPotential(r, targ, &channels[0]) 
         + nlpot.totalPotential(r,r,targ,&channels[0]))
       << " "
-      << couplingPotential(r,r,0,1)
+      << couplingPotential(r,r,0,channels.size()-1)
       << std::endl;
   }
   

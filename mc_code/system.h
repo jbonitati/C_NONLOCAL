@@ -53,8 +53,6 @@ class System{
     double couplingPotential(double, double, unsigned int, unsigned int);
     
     WaveFunction calculateWaveFunction(double);
-    cx_double internalWaveFunction(unsigned int, double);
-    cx_double externalWaveFunction(unsigned int, double);
     
     System(); //explicitly disallow unwanted default constructor (Meyers item 6)
   public:
@@ -67,6 +65,9 @@ class System{
       int c0, std::vector<Channel> channels_,
       OpticalPotential op, NonLocalOpticalPotential nlop, int basis_size,
       double step, double max,matrix<CouplingPotential> coupling);
+    
+    cx_double internalWaveFunction(unsigned int, double);
+    cx_double externalWaveFunction(unsigned int, double);
     
     void waveFunctions(boost::filesystem::ofstream&);
     void plotPotential(boost::filesystem::ofstream&);
