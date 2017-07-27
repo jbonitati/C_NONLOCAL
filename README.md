@@ -32,6 +32,39 @@ $ python examples/makeini.py config.ini 5
 ```
 will overwrite the "config.ini" file with input parameters for a 5 channel problem, which can then be modified in a text editor.
 
+## Inputs
+
+The input file requires all of the following values:
+- Settings
+-- output_file: name of the .txt file to output to
+-- num_channels: number of channels to consider (you must have a separate section for each channel)
+-- entrance_channel: the number (starting from 1) of the channel to use as the entrance channel
+- Numerical
+-- Projectile_mass_number
+-- Target_mass_number
+-- Projectile_proton_number
+-- Target_proton_number
+-- Coulomb_radius: radius (fm) used in the coulomb potential if applicable
+-- Total_energy: E (MeV) in the center of mass frame
+-- Basis_size: number of Basis functions to use
+-- Step_size: step (fm) at which to calculate the wave functions
+-- R_max: max value to calculate the wave function
+-- Channel_radius: a (fm)
+- Channelx (replace x with the number >= 1)
+-- Angular_momentum: l
+-- Spin: m
+-- Total_angular_momentum: j
+-- Energy: Channel energy (MeV)
+- couplingxy (replace xy with two numbers >= 1)
+-- beta: coupling strength
+-- V: MeV
+-- r: fm
+-- a: fm
+- local: Volume, surface, and spin-orbit parameters for optical potential (all in MeV or fm) (make V=0 for any unwanted potentials)
+-- Vv, av, rv, Wv, awv, rwv, Vd, ad, rd, Wd, awd, rwd, Vso, aso, rso, Wso, awso, Rwso
+- nonlocal: same as local, but with nonlocality (make beta=0 for no nonlocality)
+-- beta, Vv, av, rv, Wv, awv, rwv, Vd, ad, rd, Wd, awd, rwd, Vso, aso, rso, Wso, awso, Rwso
+
 [//]: #
    [git-repo-url]: <https://github.com/jbonitati/C_NONLOCAL.git>
    [Descouvement-2010]: <https://arxiv.org/abs/1001.0678>
