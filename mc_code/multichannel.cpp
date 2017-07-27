@@ -5,6 +5,8 @@
 #include <vector>
 #include <string>
 #include <fstream>
+#include <limits>//precision
+typedef std::numeric_limits< double > dbl;
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/ini_parser.hpp>
@@ -151,7 +153,8 @@ int main()
   
   //std::cout << "Calculating wave functions..." << std::endl;
   //mySystem->waveFunctions(outfile);
-  std::cout << std::abs(mySystem->internalWaveFunction(0,1.2)) << std::endl;
+  std::cout.precision(dbl::digits10);
+  std::cout << std::fixed << std::abs(mySystem->internalWaveFunction(0,1.2)) << std::endl;
   
   
   outfile.close();

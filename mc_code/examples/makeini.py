@@ -9,6 +9,8 @@ else:
   numc = sys.argv[2]
   
 numc = int(numc)
+if numc < 1
+  sys.exit()
 
 #if(input('This will overwrite the config.ini in this folder. Continue? (y/n)') != "y"):
 #  quit()
@@ -24,10 +26,10 @@ HEADER = ";This is a template for an input file for the multichannel R-matrix me
 
 SETTINGS = "[Settings] \n\
 ;output file will be stored in the \"output\" directory \n\
-output_file = neutron_wave \n\
+output_file = %d_channel_wave \n\
 ;note: you must have a separate section for each channel \n \
 num_channels = %d \n\
-entrance_channel = 1 \n\n"%numc
+entrance_channel = 1 \n\n"%(numc,numc)
 
 NUMERICAL = "[Numerical]\n\
 Projectile_mass_number = 0 \n\
