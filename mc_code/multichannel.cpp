@@ -151,10 +151,10 @@ int main()
   boost::filesystem::ofstream outfile(filePath);
   std::cout << "Creating output file: " << filePath << std::endl;
   
-  //std::cout << "Calculating wave functions..." << std::endl;
-  //mySystem->waveFunctions(outfile);
-  std::cout.precision(dbl::digits10);
-  std::cout << std::fixed << std::abs(mySystem->internalWaveFunction(0,1.2)) << std::endl;
+  std::cout << "Calculating wave functions..." << std::endl;
+  mySystem->waveFunctions(outfile);
+  //std::cout.precision(dbl::digits10);
+  //std::cout << std::fixed << std::abs(mySystem->internalWaveFunction(0,1.2)) << std::endl;
   
   
   outfile.close();
