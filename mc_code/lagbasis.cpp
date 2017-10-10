@@ -34,6 +34,8 @@ void LagBasis::gauleg(const double x1, const double x2, int n)
     //in previous program, this was factored out when calculating potential
 		weights[i]=xl/((1.0-z*z)*pp*pp);
 		weights[n-1-i]=weights[i];
+    
+    //std::cout << i << " " << xi[i] << " " << weights[i] << std::endl;
 	}
 }
 
@@ -67,6 +69,7 @@ LagBasis::LagBasis(int n, double a_): size(n), a(a_), phi_a(n){
   gauleg(-1,1,n);
   for(int i = 0; i < n; i++){
     phi_a(i) = phi(i+1,a);
+    //std::cout << i << " " << phi(i+1,a) << std::endl;
   }
 }
 

@@ -5,8 +5,8 @@ using namespace arma;
 
 class WaveFunction{
   private:
-    double r;
-    std::vector<cx_double> values;
+    double r; //distance from origin
+    std::vector<cx_double> values; //wave function values for each channel
   public:
     WaveFunction(){ }
     WaveFunction(double r_): r(r_){ }

@@ -149,6 +149,7 @@ void System::invertCmatrix(){
 /*calculates the rmatrix from the inverse C matrix*/
 void System::rmatrixCalc(){
   boost::timer::auto_cpu_timer t("R matrix time: %w sec real, %t sec CPU\n");
+  
   for(unsigned int c = 0; c < channels.size(); c++){
     Channel * c1 = &channels[c];
     for(unsigned int cprime = 0; cprime < channels.size(); cprime++){
@@ -238,7 +239,8 @@ cx_double System::internalWaveFunction(unsigned int c, double r){
     if(cprime == entrance_channel)
       outersum += coeff*ipval;
     //if(c2->getB() != 0)
-    //  outersum += -1.0*c2->getB()/a * externalWaveFunction(cprime,a);
+    //  outersum += -1.0*hbarc*hbarc/(2*mass_unit*mu)*
+    //    c2->getB()/a * externalWaveFunction(cprime,a);
 
     arma::rowvec phir = lagrangeBasis.get_phi_r(r);
     arma::cx_mat cinv = invcmatrix.submat(c*basis_size, cprime*basis_size, 
@@ -265,7 +267,7 @@ cx_double System::externalWaveFunction(unsigned int c, double r){
   c1->io_coulomb_functions(kc*r, targ, proj, 
     &ival, &oval, &ipval, &opval);
   cx_double wfvalue;
-  if(energy >= c1->getE()){
+  if(c1->isOpen()){
     //Open Channel
     
     double coeff = 1.0;///sqrt(c1->getVc());
