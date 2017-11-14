@@ -16,6 +16,9 @@ using namespace std;
 //Name your test cases for what they test
 BOOST_AUTO_TEST_CASE( constructor )
 {
+  std::cout << "Testing constructor!" << std::endl;
+
+  
   double a = 10.0;
   double energy = 5.0;
   Particle projectile(1,0);
@@ -43,15 +46,12 @@ BOOST_AUTO_TEST_CASE( constructor )
     mu, energy, a, target, projectile));
       
   //One channel case
-  System system1(const double a, double energy,
-    Particle projectile, Particle target, double rc,
-    int c0, std::vector<Channel> c,
-    OpticalPotential op, NonLocalOpticalPotential nlop, int b_size,
-    double step, double max, matrix<CouplingPotential> coupling);
+  System system1(a, energy, projectile,target, rc,
+    c0, channels, op, nlop, b_size, step, max, coupling);
   
   //////////////////////////////////////////////////////////////////////
   //todo: add tests here, e.g:
   //BOOST_EQUALS(system1.Cmatrix, ((0, 1), (1, 0)));
   
-  std::cout << "Testing!" << std::endl;
+  
 }
