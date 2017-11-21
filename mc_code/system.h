@@ -43,6 +43,7 @@ class System{
     arma::cx_mat rmatrix;
     arma::cx_mat umatrix;
     
+    
     matrix<CouplingPotential> coupling_matrix;
     
     void cmatrixCalc();
@@ -59,6 +60,11 @@ class System{
     ~System(){
       channels.clear();
     }
+    
+    arma::cx_mat getCmatrix(){return cmatrix;}
+    arma::cx_mat getInvCmatrix(){return invcmatrix;}
+    cx_double getRmatrix(int i, int j){return rmatrix(i,j);}
+    arma::cx_mat getUmatrix(){return umatrix;}
     
     System(const double a_size, double e,
       Particle projectile, Particle target, double rc,
