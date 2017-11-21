@@ -32,7 +32,7 @@ BOOST_AUTO_TEST_CASE( constructor, * utf::tolerance(0.0001) )
   Particle projectile(m1,z1);
   Particle target(m2,z2);
   double rc = 0.5; //coulomb radius
-  int c0 = 1; //entrance channel
+  int c0 = 0; //entrance channel
   OpticalPotential op(V_Potential(53.28, 2.483, 0.5), V_Potential(0, 0, 0),
     D_Potential(0, 0, 0), D_Potential(0,0,0),
     SO_Potential(0, 0, 0), SO_Potential(0, 0, 0));
@@ -56,13 +56,21 @@ BOOST_AUTO_TEST_CASE( constructor, * utf::tolerance(0.0001) )
   
   //One channel case
   cout<< "Testing one channel case" << endl;
-  System system1(a, energy, projectile,target, rc,
+  System * system1 = new System(a, energy, projectile,target, rc,
     c0, channels, op, nlop, b_size, step, max, coupling);
   //////////////////////////////////////////////////////////////////////
   //todo: add tests here, e.g:
   //BOOST_EQUALS(system1.Cmatrix, ((0, 1), (1, 0)));
-  cout << system1.internalWaveFunction(0,10) << endl;
-  //BOOST_TEST(std::real(system1.getRmatrix()(0,0)) == 0.8418078);
+  
+  BOOST_TEST(std::real(system1->getRmatrix()(0,0)) == 0.8418078);
+  BOOST_TEST(std::real(system1->getUmatrix()(0,0)) == 0.9206825);
+  BOOST_TEST(std::real(system1->internalWaveFunction(0,5)) == .81074);
+  BOOST_TEST(std::real(system1->internalWaveFunction(0,10)) == -0.949644);
+  BOOST_TEST(std::real(system1->externalWaveFunction(0,10)) == -0.949644);
+  BOOST_TEST(std::real(system1->externalWaveFunction(0,15)) == 0.47968398);
+  
+  
+  delete system1;
 }
 
 

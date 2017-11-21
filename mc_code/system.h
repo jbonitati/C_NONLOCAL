@@ -63,7 +63,7 @@ class System{
     
     arma::cx_mat getCmatrix(){return cmatrix;}
     arma::cx_mat getInvCmatrix(){return invcmatrix;}
-    cx_double getRmatrix(int i, int j){return rmatrix(i,j);}
+    arma::cx_mat getRmatrix(){return rmatrix;}
     arma::cx_mat getUmatrix(){return umatrix;}
     
     System(const double a_size, double e,
