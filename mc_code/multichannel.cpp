@@ -135,7 +135,8 @@ void loadSystem(){
   std::cout << "Basis size: " << NN << std::endl;
   std::cout << "Channel radius: " << a_size << std::endl;
   std::cout << "Number of channels: " << num_channels << std::endl;
-    
+  
+  //initialize system using constructor in system.cpp
   mySystem = new System(a_size, E, proj, targ, rc,
     c0, channels, op, nlop, NN, Nr, R_max, cpmat);
 }

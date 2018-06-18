@@ -8,7 +8,7 @@ CXX := g++
 LDLIBS := -lgsl -lgslcblas -larmadillo -lboost_system -lboost_timer 
 DFLAGS := -lboost_unit_test_framework
 LDFlAGS := 
-CXXFLAGS :=  -Wall -g -fopenmp
+CXXFLAGS :=  -Wall -g -fopenmp -std=c++11
 
 srcfiles := OpticalPotential.cpp system.cpp channel.cpp particle.cpp lagbasis.cpp potential.cpp wavefunction.cpp
 mainfiles = $(srcfiles)

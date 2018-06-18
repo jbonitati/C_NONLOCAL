@@ -10,7 +10,7 @@
 #include <vector>
 #include <boost/filesystem/fstream.hpp>
 #include <boost/filesystem/path.hpp>
-#include <boost/serialization/array_wrapper.hpp>
+//#include <boost/serialization/array_wrapper.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 
 using namespace boost::numeric::ublas; //matrix
