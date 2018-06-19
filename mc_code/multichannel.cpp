@@ -21,7 +21,8 @@ namespace {
   std::string filename;
 }
 
-void loadSystem(){
+void loadSystem()
+{
   
   boost::property_tree::ptree pt;
   boost::property_tree::ini_parser::read_ini("config.ini", pt);
@@ -89,9 +90,10 @@ void loadSystem(){
   channels.reserve(num_channels);
   double mu = m1*m2/ (m1+m2);
   //std::cout << mu << std::endl;
-  try{
-    
-    for(int i = 1; i <= num_channels; i++){
+  try
+  {
+    for(int i = 1; i <= num_channels; i++)
+    {
       channels.push_back(Channel(
         pt.get<double>("Channel" + boost::lexical_cast<std::string>(i) + ".Energy"), 
         pt.get<int>("Channel" + boost::lexical_cast<std::string>(i) + ".Angular_momentum"),
@@ -99,16 +101,20 @@ void loadSystem(){
         pt.get<double>("Channel" + boost::lexical_cast<std::string>(i) + ".Total_angular_momentum"),
         mu, E, a_size, targ, proj));
     }
-  }catch(...){
+  }
+  catch(...)
+  {
     std::cerr << "\nError reading channel values. Make sure all channels are specified in config" << std::endl << std::endl;
     throw;
   }
   
   //read in the info about the coupling between each channel
   matrix<CouplingPotential> cpmat(num_channels, num_channels);
-  for(int i = 0; i < num_channels; i++){
+  for(int i = 0; i < num_channels; i++)
+  {
     cpmat(i,i) = CouplingPotential();
-    for(int j = i+1; j < num_channels; j++){
+    for(int j = i+1; j < num_channels; j++)
+    {
       std::string cp = "coupling" 
         + boost::lexical_cast<std::string>(i+1)
         + boost::lexical_cast<std::string>(j+1);
@@ -119,7 +125,6 @@ void loadSystem(){
         beta);
       cpmat(i,j) = (cpot);
       cpmat(j,i) = (cpot);
-    
     }
   }
   
@@ -153,10 +158,7 @@ int main()
   std::cout << "Creating output file: " << filePath << std::endl;
   
   std::cout << "Calculating wave functions..." << std::endl;
-  mySystem->waveFunctions(outfile);
-  //std::cout.precision(dbl::digits10);
-  //std::cout << std::fixed << std::abs(mySystem->internalWaveFunction(0,1.2)) << std::endl;
-  
+  mySystem->waveFunctions(outfile); 
   
   outfile.close();
   

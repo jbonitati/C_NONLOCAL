@@ -1,4 +1,3 @@
-
 #include <cmath>
 #include "particle.h"
 #include "constants.h"
@@ -20,5 +19,4 @@ double Particle::coulomb_potential_to(double R, double rc, Particle targ)const
   {
     return (z1*z2*E2HC)/R;
   }
-  
 }  

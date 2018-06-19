@@ -6,25 +6,29 @@
 #include "constants.h"
 
 arma::cx_double OpticalPotential::Volume_potential
-(double radius, Particle p)const{
+(double radius, Particle p) const
+{
   return Volume_Re.getValue(radius, p) 
     + I*Volume_Im.getValue(radius, p);
 }
 
 arma::cx_double OpticalPotential::Surface_potential
-(double radius, Particle p)const{
+(double radius, Particle p) const
+{
   return Surface_Re.getValue(radius, p) 
     + I*Surface_Im.getValue(radius, p);
 }
 
 arma::cx_double OpticalPotential::Spin_orbit_potential
-(double radius, Particle p, Channel * c)const{
+(double radius, Particle p, Channel * c) const
+{
   return SpinOrbit_Re.getValue(radius, p, c)
     + I*SpinOrbit_Im.getValue(radius, p, c);
 }
 
 arma::cx_double OpticalPotential::totalPotential
-(double radius, Particle p, Channel * c) const{
+(double radius, Particle p, Channel * c) const
+{
   return Volume_potential(radius, p) 
     + Surface_potential(radius, p) 
     + Spin_orbit_potential(radius, p, c);
@@ -70,8 +74,10 @@ double integration(int l, double mu)
     &error);
   return result;
 }
+
 arma::cx_double NonLocalOpticalPotential::totalPotential
-(double r1, double r2, Particle p, Channel  * c) const{
+  (double r1, double r2, Particle p, Channel  * c) const
+{
   if(beta == 0.0) return 0;
   
   double ravg = (r1+r2)/2.0;
@@ -83,9 +89,12 @@ arma::cx_double NonLocalOpticalPotential::totalPotential
   double z =2.0*r1*r2/(beta*beta);
   arma::cx_double nonlocal_part;
   //for large z, we use an approximation
-  if(abs(z) >= 700){
+  if(abs(z) >= 700)
+  {
     nonlocal_part = 1.0/(pow(PI,0.5)*beta) * exp(-1.0*pow((r1-r2)/beta,2.0));
-  }else{
+  }
+  else
+  {
     //numerically compute the bessel function at (-i*z)
     arma::cx_double approx_bessel =1.0/(2.0*pow(1.0*I,l))*integration(l,z);
     

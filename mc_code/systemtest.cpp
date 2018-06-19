@@ -21,7 +21,6 @@ namespace tt = boost::test_tools;
 BOOST_AUTO_TEST_CASE( constructor, * utf::tolerance(0.0001) )
 {
   std::cout << "Testing constructor!" << std::endl;
-
   
   double a = 10.0;
   double energy = 5.0;
@@ -69,10 +68,8 @@ BOOST_AUTO_TEST_CASE( constructor, * utf::tolerance(0.0001) )
   BOOST_TEST(std::real(system1->externalWaveFunction(0,10)) == -0.949644);
   BOOST_TEST(std::real(system1->externalWaveFunction(0,15)) == 0.47968398);
   
-  
   delete system1;
 }
-
 
 /*
   double a = 10.0;
