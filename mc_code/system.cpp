@@ -88,11 +88,11 @@ void System::cmatrixCalc()
     {
       //Channel * c2 = &channels[cprime];
       arma::cx_mat Vmatrix(N,N, arma::fill::zeros);
+      arma::cx_mat TLmatrix(N, N, arma::fill::zeros);
 
       if(c == cprime)
       {
         //include TLmatrix as well as Vmatrix for c = c'
-        arma::cx_mat TLmatrix(N, N, arma::fill::zeros);
     
         double mu = c1->getMu();
         double TLcoeff = hbarc*hbarc/(2*mass_unit*mu);
@@ -127,7 +127,6 @@ void System::cmatrixCalc()
               * nlpot.totalPotential(ri, rj, targ, c1);
           }
         }
-        cmatrix.submat(c*N, cprime*N, (c+1)*N-1, (cprime+1)*N-1) = TLmatrix + Vmatrix;
         
       }
       else
@@ -147,8 +146,9 @@ void System::cmatrixCalc()
               couplingPotential(ri,rj,c,cprime);
           }
         }
-        cmatrix.submat(c*N, cprime*N, (c+1)*N-1, (cprime+1)*N-1) = Vmatrix;
       }
+
+      cmatrix.submat(c*N, cprime*N, (c+1)*N-1, (cprime+1)*N-1) = TLmatrix + Vmatrix;
     }
   }
 }
@@ -207,7 +207,7 @@ void System::umatrixCalc()
       c2->io_coulomb_functions(kc2*a, targ, proj, 
         &ivalue, &ovalue, &ipvalue, &opvalue);
       
-      //python program did not have k in the following equations
+      //old python program did not have k in the following equations
       //this is due to the way it took the derivative differently
       zomatrix(c,cprime) = coeff*(-1*kc2*
         a*rmatrix(c,cprime)*opvalue);
@@ -243,9 +243,11 @@ cx_double System::internalWaveFunction(unsigned int c, double r)
   cx_double oval, ival, opval, ipval;
   
   for(unsigned int cprime = 0;
-    cprime < channels.size() && channels[cprime].isOpen();
+    cprime < channels.size();
     cprime++)
   {
+    if( channels[cprime].isOpen())
+    {
     Channel * c2 = &channels[cprime];
   
     double kc = c2->getKc();
@@ -271,6 +273,7 @@ cx_double System::internalWaveFunction(unsigned int c, double r)
     cx_double innersum = arma::as_scalar(phir*cinv*phia);
     
     wfvalue += outersum*innersum;
+    }
   }
   return wfvalue;
 }
