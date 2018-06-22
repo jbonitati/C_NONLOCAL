@@ -292,6 +292,7 @@ cx_double System::externalWaveFunction(unsigned int c, double r)
   c1->io_coulomb_functions(kc*r, targ, proj, 
     &ival, &oval, &ipval, &opval);
   cx_double wfvalue;
+
   if(c1->isOpen())
   {
     //Open Channel
@@ -305,12 +306,15 @@ cx_double System::externalWaveFunction(unsigned int c, double r)
   {
     //Closed Channel
     
-    double coeff = 1.0/c1->whittaker(2*kc*a, targ, proj);
+    double coeff = (c1->whittaker(2*kc*r, targ, proj))/(c1->whittaker(2*kc*a, targ, proj));
+
     cx_double sum = 0;
     for(unsigned int cprime = 0; 
-      cprime < channels.size() && channels[cprime].isOpen();
+      cprime < channels.size();
       cprime++)
     {
+      if(channels[cprime].isOpen())
+      {
       Channel * c2 = &channels[cprime];
       cx_double oval2, ival2, opval2, ipval2;
       double kc2 = c2->getKc();
@@ -321,8 +325,10 @@ cx_double System::externalWaveFunction(unsigned int c, double r)
       sum += -1.0*sumcoeff*umatrix(cprime,entrance_channel)*opval2;
       if(cprime == entrance_channel)
         sum += sumcoeff*ipval2;
+      }
     }
-    wfvalue = coeff*sum*c1->whittaker(2*kc*r, targ, proj);
+
+    wfvalue = coeff*sum;
   }
   wfvalue *= nrmlz;
   return wfvalue;
