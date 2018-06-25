@@ -1,0 +1,5 @@
+*.o
+*.png
+mc_code/output/*.csv
+mc_code/output/*.txt
+mc_code/run
